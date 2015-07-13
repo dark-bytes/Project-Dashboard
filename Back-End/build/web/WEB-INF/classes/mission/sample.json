@@ -1,0 +1,33 @@
+{
+    "Delete":{
+    	"mId":[1,2,3],
+        "pId":[1,2,3]
+    },
+    "Update":{
+    	"missionUpd":{
+    		"id":[1,2,3],
+    		"updValue":["ssss","dasd","ddd"]
+    	},
+        "pointUpd":{
+        	"id":[1,2,3],
+                "updValue":["sasa","ddsss","aasw"]
+        }
+    },
+    "Add":{
+    	"missionAdd":{
+    		"AddMissionInfo":{
+    			"mName":"data","pValue":["d","d"]
+    		},
+    		"AddMissionInfo":{
+    			"mName":"data1","pValue":["ss","ssds"]
+    		},
+    		"AddMissionInfo":{
+    			"mName":"data2","pValue":["s22s","ss12ds"]
+    		}
+    	},
+    	"AddPointInfo":{
+    		"mId":[1,2],
+    		"pValue":["sasd","sadsf"]
+    	}
+    }
+}
