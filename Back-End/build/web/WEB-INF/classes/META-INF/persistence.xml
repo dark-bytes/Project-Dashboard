@@ -14,6 +14,7 @@
     <class>businessCharts.entityClasses.BranchParentmap</class>
     <class>businessCharts.entityClasses.BranchName</class>
     <class>businessCharts.entityClasses.BranchParent</class>
+    <class>businessCharts.entityClasses.AssigneeData</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/dashboard?zeroDateTimeBehavior=convertToNull"/>

@@ -30,6 +30,13 @@ public class BugsListGraph {
     List<Integer> cloned = new ArrayList<Integer>();
     @Expose 
     List<Date> dates = new ArrayList<Date>();
+    @Expose
+    List<String> names = new ArrayList<String>();
+    @Expose
+    List<String> assignee = new ArrayList<String>();
+    @Expose
+    List<Integer> assignedBugs = new ArrayList<Integer>();
+    
     void generateList(int month,int name) {
         factory = Persistence.createEntityManagerFactory(p_unit_name);
         EntityManager em = factory.createEntityManager();
@@ -53,5 +60,13 @@ public class BugsListGraph {
                 dates.add(l.getAllopenbugsPK().getDate());
             }
         }
+        em.close();
+        factory.close();
+    }
+    
+    void generatePie(int name){
+        factory = Persistence.createEntityManagerFactory(p_unit_name);
+        EntityManager em = factory.createEntityManager();
+       // Query q = em.createQuery("SELECT a FROM Allopenbugs a where a.")
     }
 }

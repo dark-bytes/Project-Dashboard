@@ -6,7 +6,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 import mission.MissionInfo;
 
-@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2015-07-13T11:11:19")
+@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2015-07-14T16:18:23")
 @StaticMetamodel(MissionId.class)
 public class MissionId_ { 
 

@@ -37,8 +37,6 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "BranchName.findByBranchName", query = "SELECT b FROM BranchName b WHERE b.branchName = :branchName"),
     @NamedQuery(name = "BranchName.findByStatus", query = "SELECT b FROM BranchName b WHERE b.status = :status")})
 public class BranchName implements Serializable {
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "branchName")
-    private Collection<AssigneeData> assigneeDataCollection;
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -148,15 +146,6 @@ public class BranchName implements Serializable {
     @Override
     public String toString() {
         return "businessCharts.entityClasses.BranchName[ id=" + id + " ]";
-    }
-
-    @XmlTransient
-    public Collection<AssigneeData> getAssigneeDataCollection() {
-        return assigneeDataCollection;
-    }
-
-    public void setAssigneeDataCollection(Collection<AssigneeData> assigneeDataCollection) {
-        this.assigneeDataCollection = assigneeDataCollection;
     }
     
 }

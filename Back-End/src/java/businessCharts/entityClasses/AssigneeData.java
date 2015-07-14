@@ -6,14 +6,17 @@
 package businessCharts.entityClasses;
 
 import java.io.Serializable;
+import javax.persistence.Basic;
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -25,39 +28,67 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "AssigneeData.findAll", query = "SELECT a FROM AssigneeData a"),
-    @NamedQuery(name = "AssigneeData.findByAssigneeName", query = "SELECT a FROM AssigneeData a WHERE a.assigneeDataPK.assigneeName = :assigneeName"),
-    @NamedQuery(name = "AssigneeData.findById", query = "SELECT a FROM AssigneeData a WHERE a.assigneeDataPK.id = :id"),
+    @NamedQuery(name = "AssigneeData.findById", query = "SELECT a FROM AssigneeData a WHERE a.id = :id"),
+    @NamedQuery(name = "AssigneeData.findByAssigneeName", query = "SELECT a FROM AssigneeData a WHERE a.assigneeName = :assigneeName"),
+    @NamedQuery(name = "AssigneeData.findByBranchid", query = "SELECT a FROM AssigneeData a WHERE a.branchid = :branchid"),
     @NamedQuery(name = "AssigneeData.findByOpenBugs", query = "SELECT a FROM AssigneeData a WHERE a.openBugs = :openBugs"),
     @NamedQuery(name = "AssigneeData.findByClonedBugs", query = "SELECT a FROM AssigneeData a WHERE a.clonedBugs = :clonedBugs")})
 public class AssigneeData implements Serializable {
     private static final long serialVersionUID = 1L;
-    @EmbeddedId
-    protected AssigneeDataPK assigneeDataPK;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "assignee_name")
+    private String assigneeName;
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "branchid")
+    private int branchid;
     @Column(name = "openBugs")
     private Integer openBugs;
     @Column(name = "clonedBugs")
     private Integer clonedBugs;
-    @JoinColumn(name = "id", referencedColumnName = "ID", insertable = false, updatable = false)
-    @ManyToOne(optional = false)
-    private BranchName branchName;
 
     public AssigneeData() {
     }
 
-    public AssigneeData(AssigneeDataPK assigneeDataPK) {
-        this.assigneeDataPK = assigneeDataPK;
+    public AssigneeData(Integer id) {
+        this.id = id;
     }
 
-    public AssigneeData(String assigneeName, int id) {
-        this.assigneeDataPK = new AssigneeDataPK(assigneeName, id);
+    public AssigneeData(Integer id, String assigneeName, int branchid) {
+        this.id = id;
+        this.assigneeName = assigneeName;
+        this.branchid = branchid;
     }
 
-    public AssigneeDataPK getAssigneeDataPK() {
-        return assigneeDataPK;
+    public Integer getId() {
+        return id;
     }
 
-    public void setAssigneeDataPK(AssigneeDataPK assigneeDataPK) {
-        this.assigneeDataPK = assigneeDataPK;
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getAssigneeName() {
+        return assigneeName;
+    }
+
+    public void setAssigneeName(String assigneeName) {
+        this.assigneeName = assigneeName;
+    }
+
+    public int getBranchid() {
+        return branchid;
+    }
+
+    public void setBranchid(int branchid) {
+        this.branchid = branchid;
     }
 
     public Integer getOpenBugs() {
@@ -76,18 +107,10 @@ public class AssigneeData implements Serializable {
         this.clonedBugs = clonedBugs;
     }
 
-    public BranchName getBranchName() {
-        return branchName;
-    }
-
-    public void setBranchName(BranchName branchName) {
-        this.branchName = branchName;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (assigneeDataPK != null ? assigneeDataPK.hashCode() : 0);
+        hash += (id != null ? id.hashCode() : 0);
         return hash;
     }
 
@@ -98,7 +121,7 @@ public class AssigneeData implements Serializable {
             return false;
         }
         AssigneeData other = (AssigneeData) object;
-        if ((this.assigneeDataPK == null && other.assigneeDataPK != null) || (this.assigneeDataPK != null && !this.assigneeDataPK.equals(other.assigneeDataPK))) {
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
         return true;
@@ -106,7 +129,7 @@ public class AssigneeData implements Serializable {
 
     @Override
     public String toString() {
-        return "businessCharts.entityClasses.AssigneeData[ assigneeDataPK=" + assigneeDataPK + " ]";
+        return "businessCharts.entityClasses.AssigneeData[ id=" + id + " ]";
     }
     
 }

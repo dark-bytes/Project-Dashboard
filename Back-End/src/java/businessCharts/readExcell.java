@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,15 +31,29 @@ public class readExcell {
     XSSFWorkbook workbook;
     private FileInputStream fis; 
     private int totalrow;
+    
     public void initExcel(String fileName) throws Exception{
         fis = new FileInputStream(new File("C:\\Users\\ssingh2\\Documents\\NetBeansProjects\\project_manage_dashboard\\src\\java\\businessCharts\\" + fileName));
         workbook = new XSSFWorkbook(fis);
     }
+    
     private static boolean isContain(Cell cell,String keyword){
-        if(!(cell.getStringCellValue().contains(null)) || cell.getStringCellValue().contains(keyword) || cell.getStringCellValue().startsWith(keyword) || cell.getStringCellValue().endsWith(keyword))
-            return true;
+        try{
+            try{
+                if(cell.getStringCellValue().contains(keyword) || cell.getStringCellValue().startsWith(keyword) || cell.getStringCellValue().endsWith(keyword))
+                    return true;
+                return false;
+            }
+            catch(NullPointerException ex){
+                return false;
+            }
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+        }
         return false;
     }
+    
     private static int getColNo(String colName,XSSFRow row){
         Iterator<Cell> topCell = row.cellIterator();
         int cellNo = 0;
@@ -51,11 +66,9 @@ public class readExcell {
             cellNo++;
         }
         return -1;
-    }/*
-    public static int countColKeywordNotClone(String keyword,String colName) throws Exception{
-        initExcel("excel.xlsx");
-        
-    } */
+    }
+    
+    
     public Pair<Integer,Integer> countColKeywordClone(String keyword,String colName) throws Exception{
         initExcel("excel.xlsx");
         XSSFSheet spreadsheet = workbook.getSheetAt(0);
@@ -87,33 +100,47 @@ public class readExcell {
         System.out.println(totalrow);
         return pair;
     }
+    
     public int getTotalrows() throws Exception{
        initExcel("excel.xlsx");
        return totalrow = workbook.getSheetAt(0).getLastRowNum();
     }
+    
     public TreeMap< String,TreeMap< String,Pair< Integer, Integer> > > groupBycount(String par1,String par2) throws Exception{
         //so that mapping could be done in O(n*log n*log n)
         initExcel("excel.xlsx");
         XSSFSheet spreadsheet = workbook.getSheetAt(0);
         Iterator<Row> rowIterator = spreadsheet.iterator();
         XSSFRow tempRow = (XSSFRow) rowIterator.next();
-        int cell_branch = getColNo("par1", tempRow);
-        int cell_assignee = getColNo("par2", tempRow);
+        int cell_branch = getColNo(par1, tempRow);
+        int cell_assignee = getColNo(par2, tempRow);
         int cell_keyword = getColNo("Keywords", tempRow);
+        System.out.println("columns no" + cell_assignee + " " + cell_branch + " " + cell_keyword);
         TreeMap< String,TreeMap< String,Pair< Integer, Integer> > >list = new TreeMap<  >();
         while(rowIterator.hasNext()){
-            Cell Branchcell = rowIterator.next().getCell(cell_branch);
-            Cell Assigneecell = rowIterator.next().getCell(cell_assignee);
-            Cell keycell = rowIterator.next().getCell(cell_keyword);
+            XSSFRow row = (XSSFRow) rowIterator.next();
+            Cell Branchcell = row.getCell(cell_branch);
+            Cell Assigneecell = row.getCell(cell_assignee);
             if(list.containsKey(Branchcell.getStringCellValue())){
                 if(list.get(Branchcell.getStringCellValue()).containsKey(Assigneecell.getStringCellValue())){
-                    if(isContain(keycell, "clone")){
-                        int key = list.get(Branchcell.getStringCellValue()).get(Assigneecell.getStringCellValue()).getKey();
-                        int value = list.get(Branchcell.getStringCellValue()).get(Assigneecell.getStringCellValue()).getValue();
-                        key++;
-                        list.get(Branchcell.getStringCellValue()).put(Assigneecell.getStringCellValue(),new Pair<>(key,value));
+                    try{
+                        Cell keycell =  row.getCell(cell_keyword);
+                        if(isContain(keycell, "clone")){
+                            int key = list.get(Branchcell.getStringCellValue()).get(Assigneecell.getStringCellValue()).getKey();
+                            int value = list.get(Branchcell.getStringCellValue()).get(Assigneecell.getStringCellValue()).getValue();
+                            //System.out.println("key->" + key);
+                            key++;
+                            list.get(Branchcell.getStringCellValue()).put(Assigneecell.getStringCellValue(),new Pair<>(key,value));
+                        }
+                        else{
+                            int key = list.get(Branchcell.getStringCellValue()).get(Assigneecell.getStringCellValue()).getKey();
+                            int value = list.get(Branchcell.getStringCellValue()).get(Assigneecell.getStringCellValue()).getValue();
+                            //System.out.println("value->" + value);
+                            value++;
+                            list.get(Branchcell.getStringCellValue()).put(Assigneecell.getStringCellValue(),new Pair<>(key,value));
+                        }
                     }
-                    else{
+                    catch(NoSuchElementException ex){
                         int key = list.get(Branchcell.getStringCellValue()).get(Assigneecell.getStringCellValue()).getKey();
                         int value = list.get(Branchcell.getStringCellValue()).get(Assigneecell.getStringCellValue()).getValue();
                         value++;
@@ -121,14 +148,20 @@ public class readExcell {
                     }
                 }
                 else{
-                    if(isContain(keycell, "clone"))
-                        list.get(Branchcell.getStringCellValue()).put(Assigneecell.getStringCellValue(),new Pair<>(1,0));
-                    else
+                    try{
+                        Cell keycell =  row.getCell(cell_keyword);
+                        if(isContain(keycell, "clone"))
+                            list.get(Branchcell.getStringCellValue()).put(Assigneecell.getStringCellValue(),new Pair<>(1,0));
+                        else
+                            list.get(Branchcell.getStringCellValue()).put(Assigneecell.getStringCellValue(),new Pair<>(0,1));
+                    }
+                    catch(NoSuchElementException ex){
                         list.get(Branchcell.getStringCellValue()).put(Assigneecell.getStringCellValue(),new Pair<>(0,1));
+                    }
                 }
             }
             else{
-                if(isContain(keycell, "clone")){
+                if(isContain(row.getCell(cell_keyword), "clone")){
                     TreeMap< String,Pair<Integer,Integer> > tp = new TreeMap<>();
                     tp.put(Assigneecell.getStringCellValue(),new Pair<>(1,0));
                     list.put(Branchcell.getStringCellValue(),tp);
@@ -142,10 +175,13 @@ public class readExcell {
         }
         return list;
     }
+    
     public static void main(String args[]){
         Pair<Integer,Integer> cols;
         try {
-            InsertBugDb.putData();
+         //   InsertBugDb.putData();
+            BugsListAssignee b = new BugsListAssignee();
+            b.putAssigneeData();
         } catch (Exception ex) {
             Logger.getLogger(readExcell.class.getName()).log(Level.SEVERE, null, ex);
         }

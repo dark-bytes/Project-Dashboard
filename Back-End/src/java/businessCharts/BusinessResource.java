@@ -54,7 +54,8 @@ public class BusinessResource {
         String jsonOut = gson.toJson(bugsList);
         return jsonOut;
     }
-
+    @GET
+    @Path("")
     /**
      * PUT method for updating or creating an instance of BusinessResource
      * @param content representation for the resource
