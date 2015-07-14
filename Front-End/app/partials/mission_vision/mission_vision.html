@@ -1,0 +1,30 @@
+<div id="mission_visionpage"  ng-controller="mission_visionCtrl">
+    <div>
+        <a id="editimg" href="#edit_vision_mission"><img src="assets/img/edit.png" style="width: 3%; height: 2%;float: right;"></a>
+    </div>    
+    <div class="pageheading">
+        <h2>VISION/MISSION</h2>
+    </div>
+    <div class="visioncontent box effectvision">
+        <div class="boxheader">
+            <h2 style="font-family: monospace; color: whitesmoke;"><b>VISION</b></h2>
+        </div>
+        <div class="boxcontent">
+            <div style="margin: auto;">
+            <h1 class="" style="text-align: center; font-weight: 500; font-family: monospace;">{{vision}}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="missioncontent">
+        <div class="contentBox box effectmission" ng-repeat="mission in missions">
+            <div class="boxheader">
+              <h2 id="{{mission.id}}" style="font-family: monospace; color: whitesmoke; top: 2%"><b>{{mission.missionInfo}}</b></h2>  
+            </div>
+            <div style="padding-top: 10px;">
+                <ol style="float: left;width: 100%">
+                    <li id="missioncontent.id" ng-repeat="missioncontent in mission.missioncontent" style="width: 100%;"><p style="font-family: monospace; text-align: left;">{{missioncontent.info}}</p></li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>

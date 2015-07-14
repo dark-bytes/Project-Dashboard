@@ -1,0 +1,56 @@
+<div id="mission_visionpage" ng-controller="edit_vision_missionCtrl">
+    <div>
+        <a ng-click="savechanges();"><img src="assets/img/savechanges.png" style="width: 4%; height: 4%;float: right;"></a>
+        <a id="cancelimg" href="#/mission_vision" style=""><img src="assets/img/cancel.png" style="width: 4%; height: 4%;float: right;"></a>
+    </div>
+    <div class="pageheading">
+        <h2>VISION/MISSION</h2>
+    </div>
+    <div class="visioncontent box effectvision">
+        <div class="boxheader">
+            <h2 style="font-family: monospace; color: whitesmoke;"><b>VISION</b></h2>
+        </div>
+        <div class="boxcontent">
+            <div style="padding-top: 20px;">
+                <span style="font-size: large; font-family: monospace; font-weight: bold; margin-left:5%;">EDIT VISION</span>
+                <br />
+                <input id="visionp" ng-blur="updatevision(vision)" type="text" ng-model="vision" class="form-control" style="background-color: #e8e8e8; font-family: monospace;">
+            </div>
+            <!--Below is the code from where i am calling addmission() function, it is an image link-->
+            <div style="padding-top: 35px;">
+                <a href="" ng-click="addmission()"><img id="addmission" src="assets/img/add.png" alt="addmission" style="width: 7%;height: 12%;float: right; bottom: 0;"></a>
+            </div>
+        </div>
+    </div>
+    <!--This is the container that contains all the mission boxes-->
+    <div id="missioncontainer" class="missioncontent">
+        <div id="mission-{{mission.id}}" class="contentBox box effectmission" ng-repeat="mission in missions">
+            <div class="boxheader">
+                <div style="float:right; clear:right; width:20%;">
+                    <span><a href="" style="" ng-click="deleteMission(mission.id)"><img src="assets/img/delete.png" style="width: 20%; height: 20%;"></a></span>
+                </div>
+                <span style="font-size: large; font-family: monospace; font-weight: bold;">EDIT MISSION NAME</span>
+                <input ng-blur="updatemission(mission.id, mission.missionInfo, 0)" type="text" ng-model="mission.missionInfo" class="form-control" style="background-color: #e8e8e8">
+            </div>
+            <div style="padding-top: 10px;">
+                <span style="font-size: large; font-family: monospace; font-weight: bold; margin-left:5%;">EDIT MISSION POINTS</span>
+                <br />
+            </div>
+            <div style="padding-top: 10px;">
+                <ul id="beforeul" style="float: left; width: 100%;">
+                    <li id="{{missioncontent.id}}" ng-repeat="missioncontent in mission.missioncontent" style="padding: 2px; width: 100%;">
+                        <div class="spandiv">
+                            <span><a href="" style="" ng-click="deletemissionpoints(missioncontent.id, mission.id)"><img src="assets/img/delete.png" style="width: 20%; height: 20%;"></a></span>
+                        </div>
+                        <div>
+                            <input type="text" ng-model="missioncontent.info" ng-blur="updatemissionpoints(missioncontent.id, missioncontent.info, mission.id, 0)" class="form-control" style="background-color: #e8e8e8; width: 80%;">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div style="padding-top: 35px;">
+                <a href="" ng-click="addmissionpoint(mission.id)"><img id="addmissionpoint" src="assets/img/add.png" alt="addmission" style="width: 7%;height: 12%;float: right; bottom: 0;"></a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<body>
+    <h1>Relation Table for Branches</h1>
+    <div class="container">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Branch</th>
+                    <th>Parent</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-bordered" id="{{relation.id}}" ng-repeat="relation in Relations">
+                    <td><input type="text" value="{{relation.branch}}"></td>
+                    <td><input type="text" value="{{relation.parent}}"></td>
+                    <td><input type="text" value="{{relation.status}}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
