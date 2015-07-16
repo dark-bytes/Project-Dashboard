@@ -20,7 +20,7 @@ public class MissionJsonGenerator {
     @Expose
     private String missionInfo;
     @Expose
-    private List<MissionEntityInfo> missioncontent;
+    private List<MissionInfo> missioncontent;
     public void setVision(String vision){
         this.vision = vision;
     }
@@ -34,12 +34,12 @@ public class MissionJsonGenerator {
         this.missionInfo = missionname;
     }
 
-    public List<MissionEntityInfo> getMissioncontent ()
+    public List<MissionInfo> getMissioncontent ()
     {
         return missioncontent;
     }
 
-    public void setMissioncontent (List<MissionEntityInfo> missioncontent)
+    public void setMissioncontent (List<MissionInfo> missioncontent)
     {
         this.missioncontent = missioncontent;
     }

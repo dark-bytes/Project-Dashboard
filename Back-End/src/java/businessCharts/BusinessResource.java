@@ -17,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
 
@@ -55,6 +56,22 @@ public class BusinessResource {
         String jsonOut = gson.toJson(bugsList);
         return jsonOut;
     }
+    @GET
+    @Path("tree")
+    @Produces("application/json")
+    public String getTree(){
+        jsontreegenerator jtg = new jsontreegenerator();
+        jtg.treeGenerate();
+        String jsonOut = gson.toJson(jtg);
+        return jsonOut;
+    } 
+    @POST
+    @Path("just")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String getdata(){
+        return "{\"root\":2}";
+    } 
     /**
      * PUT method for updating or creating an instance of BusinessResource
      * @param content representation for the resource

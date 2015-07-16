@@ -9,8 +9,10 @@ import businessCharts.entityClasses.BranchName;
 import businessCharts.entityClasses.BranchParent;
 import com.google.gson.annotations.Expose;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -28,18 +30,23 @@ public class jsontreegenerator {
     String p_unit_name = "project_manage_dashboardPU";
     
     @Expose
-    Node root;
-    
-    
+    Node root = new Node("root",0,0,"na");
+        
     public static class Node{
+        @Expose
         public String name;
-        public List<Node> children;
-        public Integer id;
-        public Integer activecount;
+        @Expose
+        public Integer branchid;
+        @Expose
         public String active;
+        @Expose
+        public Integer activecount;        
+        @Expose
+        public List<Node> children;
+        
         Node(String rootData,Integer id,Integer activecount,String active) {
             this.name = rootData;
-            this.id = id;
+            this.branchid = id;
             this.activecount = activecount;
             this.active = active; 
             this.children = new ArrayList<Node>();
@@ -47,9 +54,25 @@ public class jsontreegenerator {
         public List<Node> getchildren(){
             return this.children;
         }
+        public void print(){
+            System.out.println(name + branchid + activecount + active);
+        }
     }
-    
-    
+    Node dfs(List<Node> Tree,Integer index){
+        Node tree = new Node(Tree.get(index).name,Tree.get(index).branchid,Tree.get(index).activecount,Tree.get(index).active);
+        int active = 0;
+        for(Node child : Tree.get(index).children){
+            Node temp = dfs(Tree,child.branchid);
+            active += temp.activecount;
+            tree.children.add(temp);
+        }
+        if("true".equals(tree.active)){
+            tree.activecount = tree.activecount + active + 1;
+        }
+        else
+            tree.activecount += active;
+        return tree;
+    }
     
     public void treeGenerate(){
         factory = Persistence.createEntityManagerFactory(p_unit_name);
@@ -61,20 +84,28 @@ public class jsontreegenerator {
         brname = em.createNamedQuery("BranchName.findAll").getResultList();
         brparent = em.createNamedQuery("BranchParent.findAll").getResultList();
         int count = brparent.size();
-        List< Node > Tree = new ArrayList<>(count);
-        Queue< Node > queue = new LinkedList< Node > ();
+        System.out.println(count);
+        List< Node > Tree = Arrays.asList(new Node[count + 1]);
+        Queue< Integer > queue = new LinkedList< Integer > ();
+        
         for(BranchParent brp : brparent){
             Node temp = new Node(brp.getBranchName().getBranchName(),brp.getId(),0,brp.getBranchName().getStatus());
-            Tree.get(brp.getParentid().getId()).getchildren().add(temp);
             Tree.set(brp.getId(), temp);
         }
-        for(Node tree : Tree){
-            System.out.println("Root" + tree.id);
-            List< Node > arr = new ArrayList<Node>();
-            arr = tree.getchildren();
-            for(Node child : arr){
-                System.out.print(child.id + " ");
+        
+        for(BranchParent brp : brparent){
+            Node temp = new Node(brp.getBranchName().getBranchName(),brp.getId(),0,brp.getBranchName().getStatus());            
+            if(Objects.equals(brp.getId(), brp.getParentid().getId())){
+                queue.add(brp.getId());
             }
+            else
+                Tree.get(brp.getParentid().getId()).children.add(temp);
+        }
+        while(!queue.isEmpty()){
+            Node temp = dfs(Tree,queue.remove());
+            System.out.println(temp.branchid);
+            root.activecount += temp.activecount;
+            root.children.add(temp);
         }
     }
 }

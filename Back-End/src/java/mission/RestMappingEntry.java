@@ -78,9 +78,9 @@ public class RestMappingEntry {
         String vision = br.readLine();
         factory = Persistence.createEntityManagerFactory(p_unit_name);
         EntityManager em =  factory.createEntityManager();
-        List<MissionEntityId> list = em.createQuery("SELECT m FROM MissionId m").getResultList();
-        List<MissionEntityInfo> minfo;
-        for(MissionEntityId id: list){
+        List<MissionId> list = em.createQuery("SELECT m FROM MissionId m").getResultList();
+        List<MissionInfo> minfo;
+        for(MissionId id: list){
          //   System.out.println(id.getId());
             Query q = factory.createEntityManager().createQuery("SELECT m FROM MissionInfo m where m.missionId.id = :name");
             q.setParameter("name", id.getId());
@@ -110,12 +110,12 @@ public class RestMappingEntry {
     @GET
     @Path("delete")
     @Produces("application/json")
-    public List<MissionEntityId> dodelete(){
+    public List<MissionId> dodelete(){
         factory = Persistence.createEntityManagerFactory(p_unit_name);
         EntityManager em = factory.createEntityManager();
         em.getTransaction().begin();
         Query q = em.createNamedQuery("MissionId.findAll");//Query("DELETE FROM MissionId m where m.id = :name");
-        List<MissionEntityId> list = q.getResultList();
+        List<MissionId> list = q.getResultList();
         
         //q.setParameter("name", 4);
         //q.executeUpdate();

@@ -26,8 +26,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.TransactionRequiredException;
-import mission.MissionEntityId;
-import mission.MissionEntityInfo;
+import mission.MissionId;
+import mission.MissionInfo;
 
 /**
  *
@@ -38,8 +38,8 @@ public class EditMission {
     private static EntityManagerFactory factory;
     private static EntityManager em;
     private static String p_unit_name = "project_manage_dashboardPU" ;
-    private Map<Integer,MissionEntityId> mapmission;
-    private Map<Integer,MissionEntityInfo> mappoint;
+    private Map<Integer,MissionId> mapmission;
+    private Map<Integer,MissionInfo> mappoint;
     @Expose 
     private String vision;
     @Expose
@@ -82,12 +82,12 @@ public class EditMission {
                 }
                 
                 if(deleteMissionId.size() > 0){
-                    q = em.createQuery("DELETE FROM MissionId m where m.id IN :par",MissionEntityId.class);
+                    q = em.createQuery("DELETE FROM MissionId m where m.id IN :par",MissionId.class);
                     q.setParameter("par", deleteMissionId); 
                     System.out.println("Number of rows deleted(mission)" + q.executeUpdate());
                 }
                 if(deletePointId.size() > 0){
-                    q = em.createQuery("DELETE FROM MissionInfo m where m.id IN :par",MissionEntityInfo.class);
+                    q = em.createQuery("DELETE FROM MissionInfo m where m.id IN :par",MissionInfo.class);
                     q.setParameter("par", deletePointId);
                     System.out.println("Number of rows deleted(points)" + q.executeUpdate());
                 }
@@ -104,7 +104,7 @@ public class EditMission {
         }
     }
     public void doAddUpdate(){
-        mapmission = new TreeMap<Integer, MissionEntityId>();
+        mapmission = new TreeMap<Integer, MissionId>();
         mappoint = new TreeMap<>();
         for(Update temp:Update){
             try{
@@ -168,7 +168,7 @@ public class EditMission {
     public void doMissionAdd(Update temp) throws Exception{
         initializeFactory();
         em.getTransaction().begin();
-        MissionEntityId mId = new MissionEntityId();
+        MissionId mId = new MissionId();
         mId.setMissionInfo(temp.getValue());
         em.persist(mId);
         em.getTransaction().commit();
@@ -182,12 +182,12 @@ public class EditMission {
         try{
             initializeFactory();
             
-            MissionEntityInfo m = new MissionEntityInfo();
+            MissionInfo m = new MissionInfo();
             if(temp.getMid() > 0){
                // System.out.println(temp.);      
                 Query q = em.createQuery("SELECT m FROM MissionId m where m.id = :par");
                 q.setParameter("par", temp.getMid());
-                List<MissionEntityId> m_to_add = q.getResultList();
+                List<MissionId> m_to_add = q.getResultList();
                 System.out.println("Count of mission to be added" + m_to_add.size());
                 m.setMissionId(m_to_add.get(0));
                 m.setInfo(temp.getValue());
