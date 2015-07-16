@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "MissionId.findAll", query = "SELECT m FROM MissionId m"),
     @NamedQuery(name = "MissionId.findById", query = "SELECT m FROM MissionId m WHERE m.id = :id"),
     @NamedQuery(name = "MissionId.findByMissionInfo", query = "SELECT m FROM MissionId m WHERE m.missionInfo = :missionInfo")})
-public class MissionId implements Serializable {
+public class MissionEntityId implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Expose
@@ -50,16 +50,16 @@ public class MissionId implements Serializable {
     @Column(name = "mission_info")
     private String missionInfo;
     @OneToMany(mappedBy = "missionId",orphanRemoval = true,cascade = CascadeType.PERSIST)
-    private Collection<MissionInfo> missionInfoCollection;
+    private Collection<MissionEntityInfo> missionInfoCollection;
 
-    public MissionId() {
+    public MissionEntityId() {
     }
 
-    public MissionId(Integer id) {
+    public MissionEntityId(Integer id) {
         this.id = id;
     }
 
-    public MissionId(Integer id, String missionInfo) {
+    public MissionEntityId(Integer id, String missionInfo) {
         this.id = id;
         this.missionInfo = missionInfo;
     }
@@ -81,11 +81,11 @@ public class MissionId implements Serializable {
     }
 
     @XmlTransient
-    public Collection<MissionInfo> getMissionInfoCollection() {
+    public Collection<MissionEntityInfo> getMissionInfoCollection() {
         return missionInfoCollection;
     }
 
-    public void setMissionInfoCollection(Collection<MissionInfo> missionInfoCollection) {
+    public void setMissionInfoCollection(Collection<MissionEntityInfo> missionInfoCollection) {
         this.missionInfoCollection = missionInfoCollection;
     }
 
@@ -99,10 +99,10 @@ public class MissionId implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof MissionId)) {
+        if (!(object instanceof MissionEntityId)) {
             return false;
         }
-        MissionId other = (MissionId) object;
+        MissionEntityId other = (MissionEntityId) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }

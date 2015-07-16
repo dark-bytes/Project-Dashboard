@@ -32,7 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "AssigneeData.findByAssigneeName", query = "SELECT a FROM AssigneeData a WHERE a.assigneeName = :assigneeName"),
     @NamedQuery(name = "AssigneeData.findByBranchid", query = "SELECT a FROM AssigneeData a WHERE a.branchid = :branchid"),
     @NamedQuery(name = "AssigneeData.findByOpenBugs", query = "SELECT a FROM AssigneeData a WHERE a.openBugs = :openBugs"),
-    @NamedQuery(name = "AssigneeData.findByClonedBugs", query = "SELECT a FROM AssigneeData a WHERE a.clonedBugs = :clonedBugs")})
+    @NamedQuery(name = "AssigneeData.findByClonedBugs", query = "SELECT a FROM AssigneeData a WHERE a.clonedBugs = :clonedBugs"),
+    @NamedQuery(name = "AssigneeData.findByParentId", query = "SELECT a FROM AssigneeData a WHERE a.parentId = :parentId")})
 public class AssigneeData implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
@@ -53,6 +54,8 @@ public class AssigneeData implements Serializable {
     private Integer openBugs;
     @Column(name = "clonedBugs")
     private Integer clonedBugs;
+    @Column(name = "parent_id")
+    private Integer parentId;
 
     public AssigneeData() {
     }
@@ -105,6 +108,14 @@ public class AssigneeData implements Serializable {
 
     public void setClonedBugs(Integer clonedBugs) {
         this.clonedBugs = clonedBugs;
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
     }
 
     @Override

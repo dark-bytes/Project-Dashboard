@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "MissionInfo.findAll", query = "SELECT m FROM MissionInfo m"),
     @NamedQuery(name = "MissionInfo.findById", query = "SELECT m FROM MissionInfo m WHERE m.id = :id"),
     @NamedQuery(name = "MissionInfo.findByInfo", query = "SELECT m FROM MissionInfo m WHERE m.info = :info")})
-public class MissionInfo implements Serializable {
+public class MissionEntityInfo implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,16 +49,16 @@ public class MissionInfo implements Serializable {
     private String info;
     @JoinColumn(name = "mission_id", referencedColumnName = "id")
     @ManyToOne
-    private MissionId missionId;
+    private MissionEntityId missionId;
 
-    public MissionInfo() {
+    public MissionEntityInfo() {
     }
 
-    public MissionInfo(Integer id) {
+    public MissionEntityInfo(Integer id) {
         this.id = id;
     }
 
-    public MissionInfo(Integer id, String info) {
+    public MissionEntityInfo(Integer id, String info) {
         this.id = id;
         this.info = info;
     }
@@ -79,11 +79,11 @@ public class MissionInfo implements Serializable {
         this.info = info;
     }
 
-    public MissionId getMissionId() {
+    public MissionEntityId getMissionId() {
         return missionId;
     }
 
-    public void setMissionId(MissionId missionId) {
+    public void setMissionId(MissionEntityId missionId) {
         this.missionId = missionId;
     }
 
@@ -97,10 +97,10 @@ public class MissionInfo implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof MissionInfo)) {
+        if (!(object instanceof MissionEntityInfo)) {
             return false;
         }
-        MissionInfo other = (MissionInfo) object;
+        MissionEntityInfo other = (MissionEntityInfo) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }

@@ -3,7 +3,6 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/businessCharts/BugsListGraph.java</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/web/META-INF/context.xml</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/mission/MissionId.java</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/mission/to_run_post_req.java</file>
@@ -12,8 +11,10 @@
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/mission/editmission/Update.java</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/mission/RestMappingEntry.java</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/businessCharts/readExcell.java</file>
+            <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/businessCharts/BugsListCharts.java</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/businessCharts/InsertBugDb.java</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/mission/DelMissionP.java</file>
+            <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/businessCharts/entityClasses/BranchParent.java</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/mission/editmission/vision.txt</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/mission/sample.json</file>
             <file>file:/C:/Users/ssingh2/Documents/NetBeansProjects/project_manage_dashboard/src/java/businessCharts/entityClasses/BranchName.java</file>

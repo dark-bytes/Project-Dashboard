@@ -4,8 +4,6 @@
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>mission_pkg.MissionInfo</class>
     <class>mission_pkg.MissionId</class>
-    <class>mission.MissionId</class>
-    <class>mission.MissionInfo</class>
     <class>businessCharts.AllopenbugStatus</class>
     <class>businessCharts.entityClasses.Allopenbugs</class>
     <class>businessCharts.entityClasses.BranchRel</class>
@@ -15,6 +13,10 @@
     <class>businessCharts.entityClasses.BranchName</class>
     <class>businessCharts.entityClasses.BranchParent</class>
     <class>businessCharts.entityClasses.AssigneeData</class>
+    <class>businessCharts.entityClasses.ComponentList</class>
+    <class>businessCharts.entityClasses.CustomerList</class>
+    <class>mission.MissionEntityId</class>
+    <class>mission.MissionEntityInfo</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/dashboard?zeroDateTimeBehavior=convertToNull"/>

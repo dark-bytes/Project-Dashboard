@@ -20,41 +20,41 @@ import javax.persistence.Query;
  *
  * @author ssingh2
  */
-public class BugsListAssignee {
-    private EntityManagerFactory factory;
-    private String p_unit_name = "project_manage_dashboardPU";
+public class BugsListAssignee extends AbstractBugList{
     
-    public void putAssigneeData() throws Exception{
-        factory = Persistence.createEntityManagerFactory(p_unit_name);
-        EntityManager em = factory.createEntityManager();
+    @Override
+    public void put() throws Exception{
+        initializeFactory();
         List<BranchName> list = em.createQuery("SELECT b FROM BranchName b").getResultList();
+        List<BranchParent> pr = em.createQuery("SELECT b from BranchParent b").getResultList();
         Map< String,TreeMap< String,Pair< Integer, Integer> > > assigneeList = new TreeMap < > ();
        // AssigneeData ass = new AssigneeData();
-        
+        int index = 0;
         readExcell readexcell = new readExcell();
         assigneeList = readexcell.groupBycount("Target Milestone", "Assignee");
         
+        em.getTransaction().begin();
+        em.createNativeQuery("TRUNCATE TABLE assignee_data").executeUpdate();
+        em.getTransaction().commit();
+       
         for(BranchName bid : list ){
             TreeMap< String,Pair< Integer, Integer> > entry = assigneeList.get(bid.getBranchName());
+            int parentId = list.get(index++).getBranchParent().getParentid().getId();
+            
             for(Map.Entry< String,Pair<Integer,Integer> > entry2 : entry.entrySet()){
                 System.out.println(entry2.getValue().getValue() + " " + entry2.getValue().getKey() + " " + entry2.getKey()+ " " + bid.getId());
+                
                 AssigneeData ass = new AssigneeData();
                 ass.setClonedBugs(entry2.getValue().getValue());
                 ass.setOpenBugs(entry2.getValue().getKey());
                 ass.setBranchid(bid.getId());
                 ass.setAssigneeName(entry2.getKey());
+                ass.setParentId(parentId);
+                
                 em.getTransaction().begin();
                 em.persist(ass);
                 em.getTransaction().commit();
             }
         }
-        /*
-        for(Map.Entry<String,TreeMap< String,Pair< Integer,Integer > > > entry: assigneeList.entrySet()){
-            System.out.println(entry.getKey() + " ");
-            for(Map.Entry< String,Pair<Integer,Integer> > entry2 : entry.getValue().entrySet()){
-                System.out.print(entry2.getKey() + " ");
-                System.out.println(entry2.getValue().getKey() + " " + entry2.getValue().getValue());
-            }
-        */
     }
 }

@@ -33,17 +33,13 @@ public class InsertBugDb {
         EntityManager em = factory.createEntityManager();
         List<BranchParent> branches = em.createNamedQuery("BranchParent.findAll").getResultList();
         List<BranchName> branchparents = em.createNamedQuery("BranchName.findAll").getResultList();
-       // for(BranchName br:branchparents){
-         //   System.out.println(br.getId());
-        //}
-        Iterator<BranchParent> branch_iterate = branches.iterator();
         Iterator<BranchName> brparent = branchparents.iterator();
         while(brparent.hasNext()){
             BranchName br = brparent.next();
             String bchname = br.getBranchName();
             int id = br.getId();
             String colName = "Target Milestone";
-            BranchName p_id = branch_iterate.next().getParentid();
+            int p_id = br.getBranchParent().getParentid().getId();
             try {
                 readExcell ex = new readExcell();
                 Pair<Integer,Integer> countbugs = ex.countColKeywordClone(bchname,colName);
@@ -53,7 +49,7 @@ public class InsertBugDb {
                 
                 allbugs.setOpenCloned(countbugs.getKey());
                 allbugs.setOpenNotCloned(countbugs.getValue());
-                allbugs.setParentId(p_id.getId());
+                allbugs.setParentId(p_id);
                 allbugs.setAllopenbugsPK(new AllopenbugsPK(new Date(),id));
                 
                 em.getTransaction().begin();

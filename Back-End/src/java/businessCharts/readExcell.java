@@ -88,7 +88,7 @@ public class readExcell {
             try{
                 if(isContain(cell, keyword))
                     notCloned++;
-                if(isContain(cell, keyword) && isContain(cell, "clone"))
+                if(isContain(cell, keyword) && isContain(cellkey, "clone"))
                     countCells++;
             }
             //System.out.println();
@@ -96,7 +96,7 @@ public class readExcell {
                 continue;
             }
         }
-        Pair<Integer, Integer> pair = new Pair<Integer, Integer>(countCells, notCloned); 
+        Pair<Integer, Integer> pair = new Pair<Integer, Integer>(countCells, notCloned - countCells); 
         System.out.println(totalrow);
         return pair;
     }
@@ -179,9 +179,8 @@ public class readExcell {
     public static void main(String args[]){
         Pair<Integer,Integer> cols;
         try {
-         //   InsertBugDb.putData();
-            BugsListAssignee b = new BugsListAssignee();
-            b.putAssigneeData();
+            jsontreegenerator jsg = new jsontreegenerator();
+            jsg.treeGenerate();
         } catch (Exception ex) {
             Logger.getLogger(readExcell.class.getName()).log(Level.SEVERE, null, ex);
         }

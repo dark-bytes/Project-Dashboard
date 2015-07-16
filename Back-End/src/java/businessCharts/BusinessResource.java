@@ -49,13 +49,12 @@ public class BusinessResource {
     @Produces("application/json")
     public String getBar(@PathParam("month") int month ,@PathParam("branch") int branchid) {
         //TODO return proper representation object
-        BugsListGraph bugsList = new BugsListGraph();
-        bugsList.generateList(month,branchid);
+        BugsChartsGenerate bugsList = new BugsChartsGenerate();
+        bugsList.generateBarChart(month,branchid);
+        bugsList.generatePieChart(branchid);
         String jsonOut = gson.toJson(bugsList);
         return jsonOut;
     }
-    @GET
-    @Path("")
     /**
      * PUT method for updating or creating an instance of BusinessResource
      * @param content representation for the resource
