@@ -5,13 +5,15 @@
     </div>
 
     <div class="child-right">
-      <h2>TimeLine</h2>
-      <div id="timeline" ng-init="ShowTimeLine(0)"></div>
+      <h2>Timeline</h2>
+      <h4>Branch - {{branchName}}</h4>
+      <div id="timeline" ng-init="ShowTimeLine(0)">
+      </div>
     </div>
 </div> 
 <div>
     <table style="width: 100%; height:">
-        <tr ng-init = "showGraph()">
+        <tr ng-init = "showGraph(1)">
             <td>
                 <div id ="chart"></div>
             </td>

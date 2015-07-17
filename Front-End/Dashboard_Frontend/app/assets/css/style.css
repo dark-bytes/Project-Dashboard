@@ -280,21 +280,26 @@ body{
   font: 10px sans-serif;
 }
 
-.link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 3.5px;
-  cursor: pointer;
+.link:hover{
+    stroke: #555;
+    stroke-width:4.5px;
+    cursor: pointer;
 }
 
-.link:hover{
-    stroke: #aaa;
-    stroke-width:4.5px;
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+    cursor: pointer;
+}
+.link2 {
+    stroke: red;
+    cursor: pointer;
 }
 
 .branchtree{
     cursor: all-scroll;
-    overflow-x: hidden;
+    overflow-x: scroll;
 }
 
 #timeline{
@@ -340,4 +345,35 @@ body{
     top: 0;
     right: 0;
     width: 50%;
+}
+
+.d3-tip {
+    line-height: 1;
+    font-weight: bold;
+    padding: 5px 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 4px;
+    line-height: 15px;
+    font-size: 12px;
+    min-width: 91px;
+}
+
+.d3-tip .info {
+    font-size: 11px;
+}
+
+.d3-tip:after {
+	top: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(0, 0, 0, 0);
+	border-top-color: rgba(0, 0, 0, 0.8);
+	border-width: 8px;
+	margin-left: -8px;
 }

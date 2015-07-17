@@ -1,6 +1,14 @@
 {
     "colorArray" : ["green", "blue", "red","green", "blue", "red"],
-    "dates" : ["2013-01-01", "2013-01-02", "2013-01-03", "2013-01-04", "2013-01-05", "2013-01-06"],
+    "dates" : ["2013-01-06", "2013-01-07", "2013-01-08", "2013-01-09", "2013-01-10", "2013-01-11"],
     "features" : [15, 20, 30, 40, 50, 60],
-    "enhancements" : [5, 10, 15, 20, 25, 30]
+    "enhancements" : [5, 10, 15, 20, 25, 30],
+    "milestones" : [
+        ["Milestone6", "Milestone11", "milestone111"],
+        ["Milestone5", "Milestone11", "milestone111"],
+        ["Milestone4", "Milestone11", "milestone111"],
+        ["Milestone3",  "Milestone11", "milestone111"],
+        ["Milestone2",  "Milestone11", "milestone111"],
+        ["Milestone1",  "Milestone11", "milestone111"]
+    ]
 }

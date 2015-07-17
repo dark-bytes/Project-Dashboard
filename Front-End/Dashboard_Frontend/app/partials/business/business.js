@@ -13,8 +13,8 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
     $scope.config={};
     $scope.typeOptions=["pie","bar","spline","step","area","area-step","area-spline"];
     $scope.config.type2=$scope.typeOptions[1];
-    $scope.showGraph = function() {
-        getGraphDataService.async().then(function(d) {
+    $scope.showGraph = function(number) {
+        getGraphDataService.async(number).then(function(d) {
             var config = {};
             config.bindto = '#chart';
             config.data = {};
@@ -98,6 +98,9 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
     var colorArray = [];
     var features = [];
     var enhancements = [];
+    var dates = [];
+    var milestones = [];
+    
     $scope.chart;    
         
     $scope.timelineConfig.bindto = '#timeline';
@@ -140,20 +143,62 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                                 };
     $scope.timelineConfig.data.onmouseover = function (d, i) { console.log('onmouseover' + features[d.index]); }
     
+    $scope.timelineConfig.tooltip = {
+        format: {
+            title: function (d) {
+                var format = d3.time.format('%d/%m/%Y');
+                return format(d)
+            }
+        },
+        grouped: false,
+        position: function (data, width, height, element) {
+            var chartOffsetX = document.querySelector("#timeline").getBoundingClientRect().left;
+            var graphOffsetX = document.querySelector("#timeline g.c3-axis-y").getBoundingClientRect().right;
+            var tooltipWidth = document.getElementById('tooltip').parentNode.clientWidth;
+            var x = (parseInt(element.getAttribute('cx')) ) + graphOffsetX - chartOffsetX - Math.floor(tooltipWidth/2);
+            var y = element.getAttribute('cy');
+            var y = y - height - 14;
+            return {top: y, left: x};
+          }
+    };
+    
+    $scope.timelineConfig.tooltip.contents = function (data, defaultTitleFormat, defaultValueFormat, color) {
+        var $$ = this, config = $$.config,
+        titleFormat = config.tooltip_format_title || defaultTitleFormat,
+        nameFormat = config.tooltip_format_name || function (name) { return name; },
+        valueFormat = config.tooltip_format_value || defaultValueFormat,
+        text, i, title, value;
+        text = "<div id='tooltip' class='d3-tip'>"; 
+        title = dates[data[0].index];
+        text += "<span class='info'><b><u>Date</u></b></span><br>";
+        text += "<span class='info'>"+ title +"</span><br>";
+        text += "<span class='info'><b><u>Features</u> : </b> " + features[data[0].index] + "</span><br>";
+        text += "<span class='info'><b><u>Enhancements</u> : </b> " + enhancements[data[0].index] + "</span><br>";
+        text += "<span class='info'><b><u>Milestones</u></b></span><br>";
+        for(i = 0; i < milestones[data[0].index].length; i++)
+        {
+            text += "<span class = 'info'>" + milestones[data[0].index][i] + "</span><br>";
+        }
+        text += "</div>";
+        return text;
+    };   
+    0
     $scope.timelineConfig.data.columns = [
                                       [],
-                                      [],
+                                      []
                                   ];
     var i;
     
     $scope.makeTree = function(){
 
-        var margin = {top: 10, right: 10, bottom: 10, left: 10},
-        //width = parseInt(d3.select('.branchtree').style('width'), 10),
-        width = 750 - margin.left - margin.right,
-        height = 600 - margin.top - margin.bottom;
-        //height = parseInt(d3.select('.branchtree').style('height'), 10),
-        //height = height - margin.top - margin.bottom,
+        var margin = {
+            top: 20,
+            right: 120,
+            bottom: 20,
+            left: 120
+        },
+        width = 960 - margin.right - margin.left,
+        height = 800 - margin.top - margin.bottom;
 
         var i = 0,
             duration = 750,
@@ -161,33 +206,23 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
 
         var tree = d3.layout.tree()
             .size([height, width]);
-    
-        var zoom = d3.behavior.zoom()
-            .scaleExtent([1, 2])
-            .on("zoom", zoomed);
 
         var diagonal = d3.svg.diagonal()
-            .projection(function(d) { return [d.y, d.x]; });
+            .projection(function (d) {
+            return [d.y, d.x];
+        });
 
         var svg = d3.select(".branchtree").append("svg")
-            .attr("id", "btree")
             .attr("width", width + margin.right + margin.left)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            .call(zoom);
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
-        var rect = svg.append("rect")
-            .attr("width", width)
-            .attr("height", height)
-            .style("fill", "none")
-            .style("pointer-events", "all");
-
-        
-        d3.json("http://localhost:8383/Dashboard_Frontend/test.json", function(error, flare) {
+        d3.json("https://gist.githubusercontent.com/mbostock/1093025/raw/a05a94858375bd0ae023f6950a2b13fac5127637/flare.json", function(error, flare) {
           if (error) throw error;
 
           root = flare;
+          console.log(flare);
           root.x0 = height / 2;
           root.y0 = 0;
 
@@ -267,90 +302,112 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
               .style("fill-opacity", 1e-6);
 
           // Update the links…
-          var link = svg.selectAll("path.link")
-              .data(links, function(d) { return d.target.id; });
+               var link = svg.selectAll("path.link")
+                    .data(links, function (d) {
+                    return d.target.id;
+                });
 
           // Enter any new links at the parent's previous position.
-          link.enter().insert("path", "g")
-              .attr("class", "link")
-              .attr("d", function(d) {
-                var o = {x: source.x0, y: source.y0};
-                return diagonal({source: o, target: o});
-              })
-              .on("click", TimeLine);
+                link.enter().insert("path", "g")
+                  .attr("class", function (d) {
+                      var myClass = (d.target.name.length > 7 ? "" : " link2");
+                      return "link" + myClass;
+                  })
+                  .attr("d", function (d) {
+                  var o = {
+                      x: source.x0,
+                      y: source.y0
+                  };
+                  return diagonal({
+                      source: o,
+                      target: o
+                  });
+              });
 
-          // Transition links to their new position.
-          link.transition()
-              .duration(duration)
-              .attr("d", diagonal);
+              // Transition links to their new position.
+                link.transition()
+                    .duration(duration)
+                    .attr("d", diagonal);
 
-          // Transition exiting nodes to the parent's new position.
-          link.exit().transition()
-              .duration(duration)
-              .attr("d", function(d) {
-                var o = {x: source.x, y: source.y};
-                return diagonal({source: o, target: o});
-              })
-              .remove();
+                // Transition exiting nodes to the parent's new position.
+                link.exit().transition()
+                    .duration(duration)
+                    .attr("d", function (d) {
+                    var o = {
+                        x: source.x,
+                        y: source.y
+                    };
+                    return diagonal({
+                        source: o,
+                        target: o
+                    });
+                })
+                    .remove();
 
-          // Stash the old positions for transition.
-          nodes.forEach(function(d) {
-            d.x0 = d.x;
-            d.y0 = d.y;
-          });
-        }   
+                // Stash the old positions for transition.
+                nodes.forEach(function (d) {
+                    d.x0 = d.x;
+                    d.y0 = d.y;
+                });
+            }
 
-        // Toggle children on click.
-        function click(d) {
-          if (d.children) {
-            d._children = d.children;
-            d.children = null;
-          } else {
-            d.children = d._children;
-            d._children = null;
-          }
-          update(d);
-        }  
-        
+            // Toggle children on click.
+            function click(d) {
+                if (d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                } else {
+                    d.children = d._children;
+                    d._children = null;
+                }
+                update(d);
+            }
+
+        $scope.branchName;
         $scope.setTimeLineData = function(TimeLineData){
+            milestones = [];
             colorArray = TimeLineData.colorArray;
             features = TimeLineData.features;
             enhancements = TimeLineData.enhancements;
-            console.log(TimeLineData.features);
+            dates = TimeLineData.dates;
+            for(i = 0; i < dates.length; i++)
+            {
+                milestones.push(TimeLineData.milestones[i]);
+            }
             $scope.timelineConfig.data.columns[0] = TimeLineData.dates;
-            console.log($scope.timelineConfig.data.columns[1]);
-            //$scope.timelineConfig.data.columns[1] = TimeLineData.features;
             $scope.timelineConfig.data.columns[1] = [];
             for(i = 0; i < features.length; i++){
                 $scope.timelineConfig.data.columns[1].push(30);
             }
-            console.log($scope.timelineConfig.data.columns[1]);
             $scope.timelineConfig.data.columns[0].unshift('x');
             $scope.timelineConfig.data.columns[1].unshift('TimeLine');
             c3.generate($scope.timelineConfig);
-            console.log($scope.timelineConfig.data.columns[1]);
-        }
+        };
         
         function TimeLine(d){
-            if(d.target.name === "Data1"){
+            alert(d.target.active);
+            console.log(d.target.branchid);
+            $scope.showGraph(d.target.branchid);
+            $scope.branchName = d.target.name;
+            if(d.target.name === "MTAS-9.1"){
                 console.log('Clicked : Data1');
                 getTimeLineDataService.getTimeLineData(1).success(function(response){
                     $scope.setTimeLineData(response);
                 });  
             }
-            else if(d.target.name === "Data2"){
+            else if(d.target.name === "MTAS-10.4"){
                 console.log('Clicked : Data2');
                 getTimeLineDataService.getTimeLineData(2).success(function(response){
-                    $scope.setTimeLineData(response);
+                  $scope.setTimeLineData(response);
                 });  
             }
         }
     };
-    
     $scope.ShowTimeLine = function(data){
+        $scope.branchName = "MTAS-9.1";
         if(data === 0){
             getTimeLineDataService.getTimeLineData(1).success(function(response){
-                $scope.setTimeLineData(response);
+              $scope.setTimeLineData(response);
             });
         }
     };
@@ -359,20 +416,19 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
 businessModule.service('getTimeLineDataService', ['$rootScope','$http', function($rootScope, $http){
     this.getTimeLineData=function(num){
         if(num === 1){
-            console.log('num = ' + num);
             return $http.get('http://localhost:8383/Dashboard_Frontend/TimeLineData.json');
         }
         else{
-            console.log('num = ' + num);
             return $http.get('http://localhost:8383/Dashboard_Frontend/TimeLineData2.json');
         }
     };
 }]);
 
 businessModule.factory('getGraphDataService', function($http) {
-  var getGraphDataService = {
-    async: function() {
-      var promise = $http.get('http://10.10.25.246:8084/project_manage_dashboard/webresources/business/monthlyBar/6/2').then(function (response) {
+  var urlString = "http://10.10.25.195:8084/project_manage_dashboard/webresources/business/monthlyBar/6";
+    var getGraphDataService = {
+    async: function(num) {
+      var promise = $http.get(urlString+'/'+num).then(function (response) {
         console.log(response);
         return response.data;
       });
