@@ -18,7 +18,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
             var config = {};
             config.bindto = '#chart';
             config.data = {};
-            config.data.json = {}
+            config.data.json = {};
             config.zoom = {enabled:true};
             config.data.json.open = d.open;
             console.log(d.open);
@@ -34,7 +34,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
             config.pie.label = {};
             config.pie.label.format = function(value,ratio,id){
                 return value;
-            }
+            };
             config.legend = {};
             config.legend.show = false;
 
@@ -92,14 +92,18 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
             }
             c3.generate(config); 
         });   
-    }
+    };
     
     $scope.timelineConfig = {};
     var colorArray = [];
     var features = [];
-    var enhancements = [];
+    var defects = [];
     var dates = [];
-    var milestones = [];
+    $scope.MilestoneData = {};
+    $scope.MilestoneData.featuredates = [];
+    $scope.MilestoneData.defectdates = [];
+    $scope.MilestoneData.defectbugs = [];
+    $scope.MilestoneData.featurebugs = [];
     
     $scope.chart;    
         
@@ -131,6 +135,190 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                                     }
                                  };
     $scope.timelineConfig.data = {};
+    
+    $scope.indexofSelectedMilestone = 0;
+    $scope.selectedMilestonefeatures = [];
+    $scope.selectedMilestonedefects = [];
+    $scope.selectedMilestonefeaturescolorArray = [];
+    $scope.selectedMilestonedefectscolorArray = [];
+    $scope.DateofSelectedMilestone = dates[0];
+    $scope.selectedMilestonefeaturesDates = [];
+    $scope.selectedMilestonedefectsDates = [];
+    $scope.showTimeLineData = false;
+    
+    $scope.$watch(function(scope) { return $scope.selectedMilestonefeaturescolorArray },
+        function(newValue, oldValue) {
+            document.getElementById("dateheading").innerHTML =
+                "Date - " + newValue + "";
+        }
+       );
+       
+    $scope.$watch(function(scope) { return $scope.selectedMilestonedefectscolorArray },
+        function(newValue, oldValue) {
+            document.getElementById("dateheading").innerHTML =
+                "Date - " + newValue + "";
+        }
+       );
+    
+    $scope.$watch(function(scope) { return $scope.showTimeLineData },
+        function(newValue, oldValue) {
+            document.getElementById("dateheading").innerHTML =
+                "Date - " + newValue + "";
+        }
+       );
+    
+    $scope.$watch(function(scope) { return $scope.DateofSelectedMilestone },
+        function(newValue, oldValue) {
+            document.getElementById("dateheading").innerHTML =
+                "Date - " + newValue + "";
+        }
+       );
+    
+    $scope.$watch(function(scope) { return $scope.selectedMilestonedefects },
+        function(newValue, oldValue) {
+            document.getElementById("dateheading").innerHTML =
+                "Date - " + newValue + "";
+        }
+       );
+       
+    $scope.$watch(function(scope) { return $scope.selectedMilestonefeatures },
+        function(newValue, oldValue) {
+            document.getElementById("dateheading").innerHTML =
+                "Date - " + newValue + "";
+        }
+       );
+       
+    $scope.$watch(function(scope) { return $scope.selectedMilestonefeaturesDates },
+        function(newValue, oldValue) {
+            document.getElementById("dateheading").innerHTML =
+                "Date - " + newValue + "";
+        }
+       ); 
+       
+    $scope.$watch(function(scope) { return $scope.selectedMilestonedefectsDates },
+        function(newValue, oldValue) {
+            document.getElementById("dateheading").innerHTML =
+                "Date - " + newValue + "";
+        }
+       ); 
+       
+    $scope.timelineConfig.data.onclick = function(d, element){
+        $scope.showSelectedMilestoneData(d, element);
+    };
+    
+    
+    $scope.showSelectedMilestoneData = function(d, element){
+        $scope.indexofSelectedMilestone = d.index;
+        $scope.DateofSelectedMilestone = dates[d.index+1];
+        $scope.selectedMilestonefeatures = [];
+        $scope.selectedMilestonefeaturescolorArray = [];
+        $scope.selectedMilestonedefectscolorArray = [];
+        $scope.selectedMilestonedefects = [];
+        $scope.selectedMilestonefeaturesDates = [];
+        $scope.selectedMilestonedefectsDates = [];
+        $scope.showTimeLineData = true;
+        $scope.$digest();
+        
+        var featurebug = "";
+        var trimmedfeaturebugs = $scope.MilestoneData.featurebugs[d.index].replace(/ /g,'');
+        for(var i = 0; i < trimmedfeaturebugs.length; i++){
+            if(trimmedfeaturebugs[i] !== ","){
+                featurebug += trimmedfeaturebugs[i];
+            }
+            else
+            {
+                $scope.selectedMilestonefeatures.push(featurebug);
+                featurebug = "";
+            }
+            if(i === trimmedfeaturebugs.length-1)
+            {
+                $scope.selectedMilestonefeatures.push(featurebug);
+                featurebug = "";
+            }
+        }
+        
+        var featurebugDate = "";
+        var trimmedfeaturebugsDates = $scope.MilestoneData.featuredates[d.index].replace(/ /g,'');
+        for(var i = 0; i < trimmedfeaturebugsDates.length; i++){
+            if(trimmedfeaturebugsDates[i] !== ","){
+                featurebugDate += trimmedfeaturebugsDates[i];
+            }
+            else
+            {
+                $scope.selectedMilestonefeaturesDates.push(featurebugDate);
+                var bugdate = new Date(featurebugDate);
+                var currentdate = new Date($scope.DateofSelectedMilestone);
+                if(bugdate <= currentdate)
+                    $scope.selectedMilestonefeaturescolorArray.push("green");
+                else
+                    $scope.selectedMilestonefeaturescolorArray.push("red");
+                featurebugDate = "";
+            }
+            if(i === trimmedfeaturebugsDates.length-1)
+            {
+                $scope.selectedMilestonefeaturesDates.push(featurebugDate);
+                var bugdate = new Date(featurebugDate);
+                var currentdate = new Date($scope.DateofSelectedMilestone);
+                if(bugdate <= currentdate)
+                    $scope.selectedMilestonefeaturescolorArray.push("green");
+                else
+                    $scope.selectedMilestonefeaturescolorArray.push("red");
+                featurebugDate = "";
+            }
+        }
+        
+        var defectbugDate = "";
+        var trimmeddefectbugsDates = $scope.MilestoneData.defectdates[d.index].replace(/ /g,'');
+        for(var i = 0; i < trimmeddefectbugsDates.length; i++){
+            if(trimmeddefectbugsDates[i] !== ","){
+                defectbugDate += trimmeddefectbugsDates[i];
+            }
+            else
+            {
+                $scope.selectedMilestonedefectsDates.push(defectbugDate);
+                var bugdate = new Date(defectbugDate);
+                var currentdate = new Date($scope.DateofSelectedMilestone);
+                if(bugdate <= currentdate)
+                    $scope.selectedMilestonedefectscolorArray.push("green");
+                else
+                    $scope.selectedMilestonedefectscolorArray.push("red");
+                defectbugDate = "";
+            }
+            if(i === trimmeddefectbugsDates.length-1)
+            {
+                $scope.selectedMilestonedefectsDates.push(defectbugDate);
+                var bugdate = new Date(defectbugDate);
+                var currentdate = new Date($scope.DateofSelectedMilestone);
+                if(bugdate <= currentdate)
+                    $scope.selectedMilestonedefectscolorArray.push("green");
+                else
+                    $scope.selectedMilestonedefectscolorArray.push("red");
+                defectbugDate = "";
+            }
+        }
+        
+        var defectbug = "";
+        var trimmeddefectbugs = $scope.MilestoneData.defectbugs[d.index].replace(/ /g,'');
+        for(var i = 0; i < trimmeddefectbugs.length; i++){
+            if(trimmeddefectbugs[i] !== ","){
+                defectbug += trimmeddefectbugs[i];
+            }
+            else
+            {
+                $scope.selectedMilestonedefects.push(defectbug);
+                defectbug = "";
+            }
+            if(i === trimmedfeaturebugs.length-1)
+            {
+                $scope.selectedMilestonedefects.push(defectbug);
+                defectbug = "";
+            }
+        }
+        
+        $scope.$digest();
+    }
+    
+    
     $scope.timelineConfig.subchart = {
                                         show : true
                                      };
@@ -141,13 +329,13 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
     $scope.timelineConfig.data.color = function(color,d){
                                     return colorArray[d.index];    
                                 };
-    $scope.timelineConfig.data.onmouseover = function (d, i) { console.log('onmouseover' + features[d.index]); }
+    $scope.timelineConfig.data.onmouseover = function (d, i) { };
     
     $scope.timelineConfig.tooltip = {
         format: {
             title: function (d) {
                 var format = d3.time.format('%d/%m/%Y');
-                return format(d)
+                return format(d);
             }
         },
         grouped: false,
@@ -173,16 +361,11 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         text += "<span class='info'><b><u>Date</u></b></span><br>";
         text += "<span class='info'>"+ title +"</span><br>";
         text += "<span class='info'><b><u>Features</u> : </b> " + features[data[0].index] + "</span><br>";
-        text += "<span class='info'><b><u>Enhancements</u> : </b> " + enhancements[data[0].index] + "</span><br>";
-        text += "<span class='info'><b><u>Milestones</u></b></span><br>";
-        for(i = 0; i < milestones[data[0].index].length; i++)
-        {
-            text += "<span class = 'info'>" + milestones[data[0].index][i] + "</span><br>";
-        }
+        text += "<span class='info'><b><u>Defects</u> : </b> " + defects[data[0].index] + "</span><br>";
         text += "</div>";
         return text;
     };   
-    0
+    
     $scope.timelineConfig.data.columns = [
                                       [],
                                       []
@@ -218,11 +401,12 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
-        d3.json("https://gist.githubusercontent.com/mbostock/1093025/raw/a05a94858375bd0ae023f6950a2b13fac5127637/flare.json", function(error, flare) {
-          if (error) throw error;
+        //d3.json("https://gist.githubusercontent.com/mbostock/1093025/raw/a05a94858375bd0ae023f6950a2b13fac5127637/flare.json", function(error, flare) {
+        d3.json("http://10.10.25.209:8084/project_manage_dashboard/webresources/business/tree", function(error, flare) { 
+        if (error) throw error;
 
-          root = flare;
-          console.log(flare);
+          root = flare.root;
+          console.log(flare.root);
           root.x0 = height / 2;
           root.y0 = 0;
 
@@ -265,14 +449,14 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
 
           nodeEnter.append("circle")
               .attr("r", 1e-6)
-              .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+              .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff";})
 
           nodeEnter.append("text")
               .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-              .attr("dy", ".35em")
+              .attr("dy", "1em")
               .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
               .text(function(d) {
-                  var res = 'Branch - ' + d.name + ', ActiveCount - ' + d.activecount;
+                  var res =d.name + ', ActiveCount - ' + d.activecount;
                   return res; 
                 })
               .style("fill-opacity", 1e-6);
@@ -310,9 +494,10 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
           // Enter any new links at the parent's previous position.
                 link.enter().insert("path", "g")
                   .attr("class", function (d) {
-                      var myClass = (d.target.name.length > 7 ? "" : " link2");
+                      var myClass = ((d.target.active === "false") ? "" : " link2");
                       return "link" + myClass;
                   })
+                  .on("click", TimeLine)
                   .attr("d", function (d) {
                   var o = {
                       x: source.x0,
@@ -365,15 +550,14 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
 
         $scope.branchName;
         $scope.setTimeLineData = function(TimeLineData){
-            milestones = [];
             colorArray = TimeLineData.colorArray;
-            features = TimeLineData.features;
-            enhancements = TimeLineData.enhancements;
+            features = TimeLineData.featurescount;
+            defects = TimeLineData.defectscount;
             dates = TimeLineData.dates;
-            for(i = 0; i < dates.length; i++)
-            {
-                milestones.push(TimeLineData.milestones[i]);
-            }
+            $scope.MilestoneData.featuredates = TimeLineData.featuresdates;
+            $scope.MilestoneData.defectdates = TimeLineData.defectsdates;
+            $scope.MilestoneData.featurebugs = TimeLineData.features;
+            $scope.MilestoneData.defectbugs = TimeLineData.defects;
             $scope.timelineConfig.data.columns[0] = TimeLineData.dates;
             $scope.timelineConfig.data.columns[1] = [];
             for(i = 0; i < features.length; i++){
@@ -385,8 +569,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         };
         
         function TimeLine(d){
-            alert(d.target.active);
-            console.log(d.target.branchid);
+            if(d.target.dates.length)
             $scope.showGraph(d.target.branchid);
             $scope.branchName = d.target.name;
             if(d.target.name === "MTAS-9.1"){
@@ -416,16 +599,16 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
 businessModule.service('getTimeLineDataService', ['$rootScope','$http', function($rootScope, $http){
     this.getTimeLineData=function(num){
         if(num === 1){
-            return $http.get('http://localhost:8383/Dashboard_Frontend/TimeLineData.json');
+            return $http.get('http://localhost:8383/Dashboard_Frontend/milestonesdata.json');
         }
         else{
-            return $http.get('http://localhost:8383/Dashboard_Frontend/TimeLineData2.json');
+            return $http.get('http://localhost:8383/Dashboard_Frontend/milestonesdata2.json');
         }
     };
 }]);
 
 businessModule.factory('getGraphDataService', function($http) {
-  var urlString = "http://10.10.25.195:8084/project_manage_dashboard/webresources/business/monthlyBar/6";
+  var urlString = "http://10.10.25.209:8084/project_manage_dashboard/webresources/business/monthlyBar/6";
     var getGraphDataService = {
     async: function(num) {
       var promise = $http.get(urlString+'/'+num).then(function (response) {

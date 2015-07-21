@@ -122,7 +122,6 @@ edit_vision_mission.controller('edit_vision_missionCtrl',['$scope','$http','getM
             jsonData.vision = $scope.vision;
         $http.post('http://10.3.2.134:8080/project_manage_dashboard/webresources/mission/edit', jsonData).success();
         var delay = 500;
-        console.log("inside savechanges");
         setTimeout(function(){
                window.location="#/mission_vision";
         }, delay); 

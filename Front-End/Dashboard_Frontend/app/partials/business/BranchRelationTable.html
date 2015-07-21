@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <body>
+    <div>
+        <a ng-click="SaveBranchChanges();"><img src="assets/img/savechanges.png" style="cursor: pointer; width: 4%; height: 4%;float: right;"></a>
+        <a id="cancelimg" href="#/business" style=""><img src="assets/img/cancel.png" style="width: 4%; height: 4%;float: right;"></a>
+    </div>
     <h1>Relation Table for Branches</h1>
-    <div class="container">
+    <div class="container-fluid">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -16,12 +14,25 @@ and open the template in the editor.
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-bordered" id="{{relation.id}}" ng-repeat="relation in Relations">
-                    <td><input type="text" value="{{relation.branch}}"></td>
-                    <td><input type="text" value="{{relation.parent}}"></td>
-                    <td><input type="text" value="{{relation.status}}"></td>
+                <tr class="table-bordered" id="branchrow{{relation.branchid}}" ng-repeat="relation in Relations" style="cursor: text;">
+                    <td class="col-xs-3">{{relation.branchname}}</td>
+                    <td class="col-xs-3">{{relation.parentname}}</td>
+                    <td class="col-xs-3">
+                        <select id="{{relation.branchid}}" ng-model="selected[$index]" ng-Change="UpdateBranchStatus({{relation.branchid}})">
+                            <option value="true" ng-selected=" selected[$index] === 'Active' ">Active</option>
+                            <option value="false" ng-selected=" selected[$index] === 'Inactive' ">Inactive</option>
+                        </select>
+                    </td>
+                    <td class="col-xs-3">
+                        <div style="clear:right; width:20%; cursor: pointer;">
+                            <span><a href="" style="" ng-click="DeleteBranch(relation.branchid)"><img src="assets/img/delete.png" style="width: 20%; height: 20%;"></a></span>
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </table>
+        <div style="padding-top: 35px;">
+            <a href="" ng-click="AddBranchRelation()"><img id="addmission" src="assets/img/add.png" alt="addmission" style="width: 5%;height: 5%;float: right; bottom: 0;"></a>
+        </div>
     </div>
 </body>
