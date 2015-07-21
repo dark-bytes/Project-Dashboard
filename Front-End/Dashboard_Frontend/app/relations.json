@@ -1,0 +1,32 @@
+[
+    {
+        "branchname" : "A", 
+        "branchid" : 1,
+        "parentname" : "B",
+        "status" : "true"
+    },
+    {
+        "branchname" : "A", 
+        "branchid" : 2,
+        "parentname" : "B",
+        "status" : "false"
+    },
+    {
+        "branchname" : "A", 
+        "branchid" : 3,
+        "parentname" : "B",
+        "status" : "true"
+    },
+    {
+        "branchname" : "A", 
+        "branchid" : 4,
+        "parentname" : "B",
+        "status" : "false"
+    },
+    {
+        "branchname" : "A", 
+        "branchid" : 5,
+        "parentname" : "B",
+        "status" : "true"
+    }
+]

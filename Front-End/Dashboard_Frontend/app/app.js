@@ -6,7 +6,8 @@ angular.module('myApp', [
   'myApp.mission_vision',
   'myApp.business',
   'myApp.edit_vision_mission',
-  'myApp.BranchRelationTable'
+  'myApp.BranchRelationTable',
+  'myApp.milestones'
 ]).
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({redirectTo: '/mission_vision'});
