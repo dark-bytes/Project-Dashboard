@@ -10,23 +10,153 @@ businessModule.config(['$routeProvider', function($routeProvider) {
 }]);
 
 businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataService', 'getGraphDataService', function($scope, $http, getTimeLineDataService, getGraphDataService) {
+
+    var addedBugIds = [];
+    var BugzillaLink = "http://10.1.1.14/bugzilla/buglist.cgi?quicksearch="
+        
+    $scope.addBug = function(BugId) {
+       addedBugIds.push(BugId);
+    };
+    $scope.deleteBug = function(BugId) {
+        var position = addedBugIds.indexOf(BugId);
+        if ( ~position ) addedBugIds.splice(position, 1);
+    };
+        
+    $scope.openBugzilla = function(BugId){
+        if(BugId === -1){
+            if(addedBugIds.length < 1){
+                alert('Error : Please Select the bugs!');
+            }
+            else{
+                var link = BugzillaLink;
+                for(var i = 0; i < addedBugIds.length; i++)
+                {
+                    if(i !== addedBugIds.length-1){
+                        link += addedBugIds[i];
+                        link += "%2C%";
+                    }
+                    else{
+                        link += addedBugIds[i];
+                    }
+                }
+                window.open(link);
+            }
+        }
+        else
+        {
+            var link = BugzillaLink;
+            link += BugId;
+            window.open(link);
+        }
+    };    
+        
+    $scope.BarChartIndex = 1;
+    $scope.BarChartOpen = [];
+    $scope.BarChartCloned = [];
+    $scope.leftIndex = 1;
+    $scope.rightIndex = 1;
+    $scope.length;
+    $scope.openData = [];
+    $scope.clonedData = [];
+    $scope.totalDates = [];
+    $scope.BarChartDates = [];
+    
+    
     $scope.config={};
     $scope.typeOptions=["pie","bar","spline","step","area","area-step","area-spline"];
     $scope.config.type2=$scope.typeOptions[1];
+    
+    $scope.GenerateBarChart = function(){
+        $scope.BarChartOpen = [];
+        $scope.BarChartCloned = [];
+        $scope.BarChartDates = [];
+        
+        if($scope.leftIndex === $scope.BarChartIndex){
+            document.getElementById("ButtonPrevData").disabled = true;
+        }
+        if($scope.rightIndex === $scope.BarChartIndex){
+            document.getElementById("ButtonNextData").disabled = true;
+        }
+        
+        if($scope.rightIndex === $scope.BarChartIndex){
+            for(var i =($scope.BarChartIndex-1)*10; i < $scope.length; i++){
+                $scope.BarChartOpen.push($scope.openData[i]);
+                $scope.BarChartCloned.push($scope.clonedData[i]);
+                $scope.BarChartDates.push($scope.totalDates[i]);
+            }
+        }
+        else{
+            for(var i = ($scope.BarChartIndex-1)*10; i < $scope.BarChartIndex*10; i++){
+                $scope.BarChartOpen.push(d.open[i]);
+                $scope.BarChartCloned.push(d.cloned[i]);
+                $scope.BarChartDates.push($scope.totalDates[i]);
+            }
+        }
+        
+        var config = {};
+        config.bindto = '#chart';
+        config.data = {};
+        config.data.columns = [];
+        //config.data.json = {};
+        config.zoom = {enabled:true};
+        config.data.x = 'x';
+        var barchartdates = $scope.BarChartDates;
+        barchartdates.unshift('x');
+        config.data.columns.push(barchartdates);
+        $scope.BarChartOpen.unshift('open');
+        $scope.BarChartCloned.unshift('Clonedopen');
+        config.data.columns.push($scope.BarChartOpen);
+        config.data.columns.push($scope.BarChartCloned);
+        config.axis = {
+                    rotated: false,
+                    x: {
+                        type: 'category',
+                        tick: {
+                            format: '%Y-%m-%d',
+                        },
+                        label: {
+                            text: 'Dates',
+                            position: 'outer-middle'
+                        }
+                    },
+                    y: {
+                        padding: {
+                            top:300
+                        }
+                    }
+                };
+        config.data.types={"open":$scope.config.type2,"Clonedopen":$scope.config.type2};
+        $scope.chart = c3.generate(config);
+    };
+    
+    $scope.PreviousDataBarChart = function(){
+       $scope.BarChartIndex--;
+       $scope.GenerateBarChart();
+    };
+    
+    $scope.NextDataBarChart = function(){
+       $scope.BarChartIndex++; 
+       $scope.GenerateBarChart();
+    };
+    
     $scope.showGraph = function(number) {
+        var config = {};
         getGraphDataService.async(number).then(function(d) {
-            var config = {};
-            config.bindto = '#chart';
-            config.data = {};
-            config.data.json = {};
-            config.zoom = {enabled:true};
-            config.data.json.open = d.open;
-            console.log(d.open);
-            config.data.json.Clonedopen = d.cloned;
-            console.log(d.cloned);
-            config.axis = {"y":{"label":{"text":"Number of bugs","position":"outer-middle"}}};
-            config.data.types={"open":$scope.config.type2,"Clonedopen":$scope.config.type2};
-            $scope.chart = c3.generate(config);
+            $scope.length = d.open.length;
+            $scope.openData = d.open;
+            $scope.clonedData = d.cloned;
+            $scope.totalDates = d.dates;
+            console.log('length - '+d.open.length);
+            if($scope.length%10 === 0){
+                $scope.rightIndex = $scope.length/10;
+            }
+            else{
+                $scope.rightIndex = ($scope.length/10) + 1;
+                $scope.rightIndex = parseInt($scope.rightIndex, 10);
+            }
+            
+            $scope.BarChartIndex = $scope.rightIndex;
+            $scope.GenerateBarChart();
             config = {};
             config.data = {};
             config.pie = {};
@@ -109,10 +239,12 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         
     $scope.timelineConfig.bindto = '#timeline';
     $scope.timelineConfig.axis = {
+                            rotated: false,
                             x: {
-                                type: 'timeseries',
+                                type: 'category',
                                 tick: {
-                                    format: '%Y-%m-%d'
+                                    format: '%Y-%m-%d',
+                                    multiline : true
                                 },
                                 label: {
                                     text: 'Dates',
@@ -203,6 +335,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
        ); 
        
     $scope.timelineConfig.data.onclick = function(d, element){
+        addedBugIds = [];
         $scope.showSelectedMilestoneData(d, element);
     };
     
@@ -316,7 +449,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         }
         
         $scope.$digest();
-    }
+    };
     
     
     $scope.timelineConfig.subchart = {
@@ -356,8 +489,9 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         nameFormat = config.tooltip_format_name || function (name) { return name; },
         valueFormat = config.tooltip_format_value || defaultValueFormat,
         text, i, title, value;
-        text = "<div id='tooltip' class='d3-tip'>"; 
-        title = dates[data[0].index];
+        text = "<div id='tooltip' class='d3-tip'>";
+        title = dates[data[0].index+1];
+        console.log('Index - '+data[0].index);
         text += "<span class='info'><b><u>Date</u></b></span><br>";
         text += "<span class='info'>"+ title +"</span><br>";
         text += "<span class='info'><b><u>Features</u> : </b> " + features[data[0].index] + "</span><br>";
@@ -402,11 +536,10 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
         //d3.json("https://gist.githubusercontent.com/mbostock/1093025/raw/a05a94858375bd0ae023f6950a2b13fac5127637/flare.json", function(error, flare) {
-        d3.json("http://10.10.25.209:8084/project_manage_dashboard/webresources/business/tree", function(error, flare) { 
+        d3.json("http://192.168.137.3:8084/project_manage_dashboard/webresources/business/tree", function(error, flare) { 
         if (error) throw error;
 
           root = flare.root;
-          console.log(flare.root);
           root.x0 = height / 2;
           root.y0 = 0;
 
@@ -569,27 +702,18 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         };
         
         function TimeLine(d){
-            if(d.target.dates.length)
+            console.log(d.target);
             $scope.showGraph(d.target.branchid);
             $scope.branchName = d.target.name;
-            if(d.target.name === "MTAS-9.1"){
-                console.log('Clicked : Data1');
-                getTimeLineDataService.getTimeLineData(1).success(function(response){
-                    $scope.setTimeLineData(response);
-                });  
-            }
-            else if(d.target.name === "MTAS-10.4"){
-                console.log('Clicked : Data2');
-                getTimeLineDataService.getTimeLineData(2).success(function(response){
-                  $scope.setTimeLineData(response);
-                });  
-            }
+            getTimeLineDataService.getTimeLineData(d.target.branchid).success(function(response){
+                $scope.setTimeLineData(response);
+            });  
         }
     };
     $scope.ShowTimeLine = function(data){
         $scope.branchName = "MTAS-9.1";
         if(data === 0){
-            getTimeLineDataService.getTimeLineData(1).success(function(response){
+            getTimeLineDataService.getTimeLineData(6).success(function(response){
               $scope.setTimeLineData(response);
             });
         }
@@ -598,21 +722,18 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
 
 businessModule.service('getTimeLineDataService', ['$rootScope','$http', function($rootScope, $http){
     this.getTimeLineData=function(num){
-        if(num === 1){
-            return $http.get('http://localhost:8383/Dashboard_Frontend/milestonesdata.json');
-        }
-        else{
-            return $http.get('http://localhost:8383/Dashboard_Frontend/milestonesdata2.json');
-        }
+        var link = "http://192.168.137.3:8084/project_manage_dashboard/webresources/business/getTimeline/";
+        link += num;
+        return $http.get(link);
+        //return $http.get('http://localhost:8383/Dashboard_Frontend/milestonesdata.json');
     };
 }]);
 
 businessModule.factory('getGraphDataService', function($http) {
-  var urlString = "http://10.10.25.209:8084/project_manage_dashboard/webresources/business/monthlyBar/6";
+  var urlString = "http://192.168.137.3:8084/project_manage_dashboard/webresources/business/monthlyBar/7";
     var getGraphDataService = {
     async: function(num) {
       var promise = $http.get(urlString+'/'+num).then(function (response) {
-        console.log(response);
         return response.data;
       });
       return promise;

@@ -303,7 +303,8 @@ body{
 }
 
 #timeline{
-   margin-top: 50px; 
+   margin-top: 50px;
+   width: 100%;
 }
 
 .parent {
@@ -313,11 +314,11 @@ body{
 }
 
 #timeline .c3-line{
-    stroke-width : 6px;
+    stroke-width : 3px;
 }
 
 #timeline .c3-circle{
-    r:8px;
+    r:4px;
 }
 
 * {
@@ -391,4 +392,8 @@ select > .placeholder {
    position: absolute;
    right : 0;
    width: 48%;
+}
+
+.ParentBranchClass{
+    
 }

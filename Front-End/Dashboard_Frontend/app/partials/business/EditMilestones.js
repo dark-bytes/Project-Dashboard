@@ -56,17 +56,68 @@ MilestonesModule.controller('milestonesCtrl', ['$scope', 'getMilestonesDataServi
             }
         }
         console.log(jsonData.dates);
-        $http.post('', jsonData).success();
-        var delay = 500;
+        $http.post('http://192.168.137.3:8084/project_manage_dashboard/webresources/business/putMstones', jsonData).success();
+        var delay = 0;
         setTimeout(function(){
            window.location="#/business";
         }, delay);
     };
+    
+    
+    $scope.uploadedFile = function(element) {
+        $scope.$apply(function($scope) {
+          $scope.files = element.files;         
+        });
+    };
+
+
+var uploadfile = function(files,success,error){
+ 
+ var url = 'http://192.168.137.3:8084/FileUpload/rest/files/upload';
+
+ for ( var i = 0; i < files.length; i++)
+ {
+  var fd = new FormData();
+ 
+  fd.append("file", files[i]);
+ 
+  $http.post(url, fd, {
+  
+   withCredentials : false,
+  
+   headers : {
+    'Content-Type' : undefined
+   },
+ transformRequest : angular.identity
+
+ })
+ .success(function(data)
+ {
+  console.log(data);
+ })
+ .error(function(data)
+ {
+  console.log(data);
+ });
+}
+};
+
+$scope.addFile = function() {
+ uploadfile($scope.files,
+   function( msg ) // success
+   {
+    console.log('uploaded');
+   },
+   function( msg ) // error
+   {
+    console.log('error');
+   });
+};
 }]);
+
 
 MilestonesModule.service('getMilestonesDataService', ['$rootScope','$http', function($rootScope, $http){
     this.getMilestonesData=function(){
-       // return $http.get('http://10.10.24.238:8080/project_manage_dashboard/webresources/mission/all');
-       return $http.get('http://localhost:8383/Dashboard_Frontend/editmilestonesdata.json');
+        return $http.get('http://192.168.137.3:8084/project_manage_dashboard/webresources/business/getMstones');
     };
 }]);

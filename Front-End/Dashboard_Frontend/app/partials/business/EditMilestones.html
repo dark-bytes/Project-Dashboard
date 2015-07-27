@@ -15,7 +15,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-bordered" id="milestonerow{{milestonesdata.milestoneId[$index]}}" ng-repeat="date in milestonesdata.dates" style="cursor: text;">
+                <tr class="table-bordered" id="milestonerow{{milestonesdata.milestoneId[$index]}}" ng-repeat="date in milestonesdata.dates track by $index" style="cursor: text;">
                     <td class="col-xs-3">{{date}}</td>
                     <td class="col-xs-3">{{milestonesdata.branch[$index]}}</td>
                     <td class="col-xs-3">{{milestonesdata.features[$index]}}</td>
@@ -27,4 +27,11 @@
             <a href="" ng-click="AddMilestone()"><img src="assets/img/add.png" alt="addmission" style="width: 5%;height: 5%;float: right; bottom: 0;"></a>
         </div>
     </div>
+    
+    <form name="upload" class="form" data-ng-submit="addFile()">
+        <input type="file" name="file" multiple 
+       onchange="angular.element(this).scope().uploadedFile(this)" />
+       <button type="submit">Upload </button>
+      </form>
+
 </body>

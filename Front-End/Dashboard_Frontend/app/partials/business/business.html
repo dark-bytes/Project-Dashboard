@@ -25,8 +25,8 @@
               </thead>
               <tbody>
                   <tr ng-repeat="defects in selectedMilestonedefects">
-                      <td><a href="" style="color: {{selectedMilestonedefectscolorArray[$index]}}">{{defects}}</a><td>
-                      <td><a href="" style="color: {{selectedMilestonedefectscolorArray[$index]}}">{{selectedMilestonedefectsDates[$index]}}</a></td>
+                      <td><label class="checkbox-inline"><input type="checkbox" name = "BugCheckBox" ng-model="BugCheckBox" ng-change="BugCheckBox ? addBug(defects) : deleteBug(defects)"/><a href="" ng-click="openBugzilla(defects)" style="color: {{selectedMilestonedefectscolorArray[$index]}}">{{defects}}</a></label><td>
+                      <td style="color: {{selectedMilestonedefectscolorArray[$index]}}">{{selectedMilestonedefectsDates[$index]}}</td>
                   </tr>
               </tbody>
             </table>
@@ -42,13 +42,13 @@
               </thead>
               <tbody>
                   <tr ng-repeat="features in selectedMilestonefeatures">
-                      <td><a href="" style="color: {{selectedMilestonefeaturescolorArray[$index]}}">{{features}}</a><td>
-                      <td><a href="" style="color: {{selectedMilestonefeaturescolorArray[$index]}}">{{selectedMilestonefeaturesDates[$index]}}</a></td>
+                      <td><label class="checkbox-inline"><input type="checkbox" name = "BugCheckBox" ng-model="BugCheckBox" ng-change="BugCheckBox ? addBug(features) : deleteBug(features)"/><a href="" ng-click="openBugzilla(features)" style="color: {{selectedMilestonefeaturescolorArray[$index]}}">{{features}}</a><td>
+                      <td style="color: {{selectedMilestonefeaturescolorArray[$index]}}">{{selectedMilestonefeaturesDates[$index]}}</td>
                   </tr>
               </tbody>
            </table>
           </div>
-      
+          <button type="button" class="btn btn-info" style="float: right;" ng-click="openBugzilla(-1)">Bugs Info</button>
       </div>
     </div>
 </div> 
@@ -56,6 +56,10 @@
     <table style="width: 100%; height:">
         <tr ng-init = "showGraph(1)">
             <td>
+                <div style="float: right;">
+                    <button type="button" ng-click="NextDataBarChart()" id="ButtonNextData" class="btn btn-primary btn-xs" style="width: 40%; float: right;">Next</button>
+                    <button type="button" ng-click="PreviousDataBarChart()" id="ButtonPrevData" class="btn btn-primary btn-xs" style="width: 60%; float: left;">Previous</button>
+                </div>
                 <h4>Bar Chart</h4>
                 <div id ="chart"></div>
             </td>

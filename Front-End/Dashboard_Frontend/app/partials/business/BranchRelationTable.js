@@ -15,9 +15,15 @@ BranchRelationTableModule.controller('BranchRelationTableCtrl', ['$scope','$http
         jsonData.id = [];
         jsonData.add = [];
         jsonData.delete = [];
+        
+        var BranchNames = [];
        
         getRelationDataService.getRelationData().success(function(response){
            $scope.Relations = response;
+           for(var i = 0; i < $scope.Relations.length; i++)
+           {
+               BranchNames.push($scope.Relations[i].branchname);
+           }
            for(var i = 0; i < $scope.Relations.length; i++)
            {
                if($scope.Relations[i].status === "true"){
@@ -31,13 +37,15 @@ BranchRelationTableModule.controller('BranchRelationTableCtrl', ['$scope','$http
         
         $scope.units = [
             {'value': 'true', 'label': 'Active'},
-            {'id': 'false', 'label': 'Inactive'}
-        ]
+            {'value': 'false', 'label': 'Inactive'}
+        ];
         
         $scope.UpdateBranchStatus = function(id) 
         {
-            var x = document.getElementById(id).selectedIndex;
-            var status = document.getElementsByTagName("option")[x].value;
+            var x = document.getElementById(id);
+            console.log(x.selectedIndex);
+            var status = x.options[x.selectedIndex].value;
+            console.log('status - '+status);
             jsonData.status.push(status);
             jsonData.id.push(id);
         };
@@ -69,27 +77,33 @@ BranchRelationTableModule.controller('BranchRelationTableCtrl', ['$scope','$http
                 
                 if(addedbranchname !== "" && addedparentbranchname !== "")
                 {
-                    var addedbranchdetails = {"branchname" : addedbranchname, "parentbranchname" : addedparentbranchname, "status" : addedbranchstatus};
+                    var addedbranchdetails = {"branchname" : addedbranchname, "parentname" : addedparentbranchname, "status" : addedbranchstatus};
                     jsonData.add.push(addedbranchdetails);
                 }
             }
             
-            $http.post('', jsonData).success();
+            console.log(jsonData);
+            
+            $http.post('http://192.168.137.3:8084/project_manage_dashboard/webresources/business/setDependency', jsonData).success();
             var delay = 500;
             setTimeout(function(){
-               window.location="#/business";
+               window.location="#/relationtable";
             }, delay);
             
         };   
         
         $scope.addedBranchid = 0;
         
+        $( ".ParentBranchClass" ).autocomplete({
+            source: BranchNames
+          });
+
         $scope.AddBranchRelation = function()
         {
             $scope.addedBranchid--;
             var addBranchRelationcode = "<tr id=\"branchrow"+$scope.addedBranchid+"\" class=\"table-bordered\">"+
                     "<td class=\"col-xs-3\"><input id=\"branchname"+$scope.addedBranchid+"\" type=\"text\" placeholder = \"Enter Branch Name\"></td>"+
-                    "<td class=\"col-xs-3\"><input id=\"parentbranchname"+$scope.addedBranchid+"\" type=\"text\" placeholder = \"Enter Parent Branch Name\"></td>"+
+                    "<td class=\"col-xs-3\"><input id=\"parentbranchname"+$scope.addedBranchid+"\" class=\"ParentBranchClass\" type=\"text\" placeholder = \"Enter Parent Branch Name\"></td>"+
                     "<td class=\"col-xs-3\">"+
                         "<select id=\"activestatus"+$scope.addedBranchid+"\">"+
                             "<option value=\"true\" selected>Active</option>"+
@@ -111,8 +125,8 @@ BranchRelationTableModule.controller('BranchRelationTableCtrl', ['$scope','$http
 
 BranchRelationTableModule.service('getRelationDataService', ['$rootScope','$http', function($rootScope, $http){
     this.getRelationData=function(){
-       // return $http.get('http://10.10.24.238:8080/project_manage_dashboard/webresources/mission/all');
-       return $http.get('http://localhost:8383/Dashboard_Frontend/relations.json');
+        return $http.get('http://192.168.137.3:8084/project_manage_dashboard/webresources/business/getDependency');
+       //return $http.get('http://localhost:8383/Dashboard_Frontend/relations.json');
     };
 }]);
 

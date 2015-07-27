@@ -14,7 +14,6 @@ edit_vision_mission.controller('edit_vision_missionCtrl',['$scope','$http','getM
     getMissionDataService.getMissionData().success(function(response){
        $scope.missions = response;
        $scope.vision = $scope.missions[0].vision;
-       console.log('Vision is ' + $scope.vision);
        $scope.len = $scope.missions.length;
     });
     
@@ -37,7 +36,6 @@ edit_vision_mission.controller('edit_vision_missionCtrl',['$scope','$http','getM
     };
     
     $scope.deletemissionpoints = function(missionpointid, missionid){
-        alert(missionid+" "+missionpointid);
        // alert("Are You Sure");
         jsonData.deletePointId.push(missionpointid);
         $("#mission-"+missionid+"").find("#"+missionpointid+"").remove();
@@ -45,7 +43,6 @@ edit_vision_mission.controller('edit_vision_missionCtrl',['$scope','$http','getM
     
     $scope.deleteMission = function(missionid)
     {
-        alert(missionid);
         //alert("Are You Sure");
         jsonData.deleteMissionId.push(missionid);
         $("#mission-"+missionid+"").remove();
@@ -120,7 +117,7 @@ edit_vision_mission.controller('edit_vision_missionCtrl',['$scope','$http','getM
     $scope.savechanges = function(){
         if(flag == 0)
             jsonData.vision = $scope.vision;
-        $http.post('http://10.3.2.134:8080/project_manage_dashboard/webresources/mission/edit', jsonData).success();
+        $http.post('http://192.168.137.3:8084/project_manage_dashboard/webresources/mission/edit', jsonData).success();
         var delay = 500;
         setTimeout(function(){
                window.location="#/mission_vision";
