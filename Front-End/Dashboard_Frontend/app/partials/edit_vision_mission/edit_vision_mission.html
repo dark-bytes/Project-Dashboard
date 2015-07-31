@@ -6,7 +6,7 @@
     <div class="pageheading">
         <h2>VISION/MISSION</h2>
     </div>
-    <div class="visioncontent box effectvision">
+    <div class="editvisioncontent box effectvision">
         <div class="boxheader">
             <h2 style="font-family: monospace; color: whitesmoke;"><b>VISION</b></h2>
         </div>
@@ -53,4 +53,17 @@
             </div>
         </div>
     </div>
+    
+    <h2 style="margin-top: 30px; margin-bottom: 20px;">Upload Image</h2>
+    <div class="radio-inline">
+        <label><input type="radio" id="radioleft" name="choice" value="left" checked="checked">Left</label>
+    </div>
+    <div class="radio-inline">
+        <label><input type="radio" id="radioright" name="choice" value="right">Right</label>
+    </div>
+    <form name="upload" class="form" data-ng-submit="addFile()">
+        <input type="file" name="file" multiple style="margin: 5px;"
+       onchange="angular.element(this).scope().uploadedFile(this)" />
+        <button class="btn btn-primary btn-sm" type="submit" style="margin: 5px;">Upload</button>
+    </form>
 </div>

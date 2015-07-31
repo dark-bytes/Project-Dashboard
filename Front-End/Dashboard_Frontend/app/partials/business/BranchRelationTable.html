@@ -35,4 +35,17 @@
             <a href="" ng-click="AddBranchRelation()"><img id="addmission" src="assets/img/add.png" alt="addmission" style="width: 5%;height: 5%;float: right; bottom: 0;"></a>
         </div>
     </div>
+    
+    <h2 style="margin-top: 30px; margin-bottom: 20px;">Upload File</h2>
+    <form name="upload" class="form" data-ng-submit="addFile()">
+        <input type="file" name="file" multiple style="margin: 5px;"
+       onchange="angular.element(this).scope().uploadedFile(this)" />
+        <div>
+            <input type="date" id="uploadedDate" style="margin: 5px;"/>
+            <div class="checkbox-inline" style="margin-left: 15px;">
+                <label><input type="checkbox" value="true" id="trendline"/>Add in Trendline</label>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit" style="margin: 5px;">Upload </button>
+    </form>
 </body>

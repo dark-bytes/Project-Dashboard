@@ -10,7 +10,7 @@ edit_vision_mission.config(['$routeProvider', function($routeProvider) {
   });
 }]);
 
-edit_vision_mission.controller('edit_vision_missionCtrl',['$scope','$http','getMissionDataService','$compile', function($scope, $http, getMissionDataService, $compile) {
+edit_vision_mission.controller('edit_vision_missionCtrl',['$scope','$http','getMissionDataService','$compile', '$q', function($scope, $http, getMissionDataService, $compile, $q) {
     getMissionDataService.getMissionData().success(function(response){
        $scope.missions = response;
        $scope.vision = $scope.missions[0].vision;
@@ -115,14 +115,96 @@ edit_vision_mission.controller('edit_vision_missionCtrl',['$scope','$http','getM
     };
 
     $scope.savechanges = function(){
-        if(flag == 0)
+        if(flag === 0)
             jsonData.vision = $scope.vision;
-        $http.post('http://192.168.137.3:8084/project_manage_dashboard/webresources/mission/edit', jsonData).success();
-        var delay = 500;
+        $http.post('http://10.3.2.134:8080/project_manage_dashboard/webresources/mission/edit', jsonData).success();
+        var delay = 600;
+        $.blockUI({ css: { 
+                border: 'none', 
+                padding: '15px', 
+                backgroundColor: '#000', 
+                '-webkit-border-radius': '10px', 
+                '-moz-border-radius': '10px', 
+                opacity: .5, 
+                color: '#fff' 
+            } });
         setTimeout(function(){
+               $.unblockUI();
+               $.growlUI('Data Saved!');
                window.location="#/mission_vision";
         }, delay); 
+       // $scope.callXhrAsynchronous(); 
     };     
+    
+    $scope.link = "";
+    
+    $scope.uploadedFile = function(element) {
+            $scope.$apply(function($scope) {
+              $scope.files = element.files;         
+            });
+        };
+
+        var uploadfile = function(files,success,error){
+
+         var url = $scope.link;
+
+         for ( var i = 0; i < files.length; i++)
+         {
+          var fd = new FormData();
+
+          fd.append("file", files[i]);
+
+          $http.post(url, fd, {
+
+           withCredentials : false,
+
+           headers : {
+            'Content-Type' : undefined
+           },
+         transformRequest : angular.identity
+
+         })
+         .success(function(data)
+         {
+            $.unblockUI();
+            $.growlUI('File Uploaded Successfully!');
+         })
+         .error(function(data)
+         {
+          $.unblockUI();
+          alert('Error in uploading Image!');
+          console.log(data);
+         });
+        }
+      };
+
+        $scope.addFile = function() {
+            if(document.getElementById('radioleft').checked){
+                $scope.link = "http://10.3.2.134:8080/FileUpload/rest/files/photoupload1";
+            }
+            else{
+                $scope.link = "http://10.3.2.134:8080/FileUpload/rest/files/photoupload";
+            }
+            $.blockUI({ css: { 
+                    border: 'none', 
+                    padding: '15px', 
+                    backgroundColor: '#000', 
+                    '-webkit-border-radius': '10px', 
+                    '-moz-border-radius': '10px', 
+                    opacity: .5, 
+                    color: '#fff' 
+                } }); 
+            uploadfile($scope.files,
+                function( msg ) // success
+                {
+                 console.log('uploaded');
+                },
+                function( msg ) // error
+                {
+                 console.log('error');
+                }
+            );
+        };
 }]);
 
 })(window.angular);

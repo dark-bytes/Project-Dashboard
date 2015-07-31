@@ -8,10 +8,10 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Branch</th>
-                    <th>Features</th>
-                    <th>Defects</th>
+                    <th class="col-xs-3">Date</th>
+                    <th class="col-xs-3">Branch</th>
+                    <th class="col-xs-3">Features</th>
+                    <th class="col-xs-3">Defects</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,10 +28,17 @@
         </div>
     </div>
     
+    <h2 style="margin-top: 30px; margin-bottom: 20px;">Upload File</h2>
     <form name="upload" class="form" data-ng-submit="addFile()">
-        <input type="file" name="file" multiple 
+        <input type="file" name="file" multiple style="margin: 5px;"
        onchange="angular.element(this).scope().uploadedFile(this)" />
-       <button type="submit">Upload </button>
-      </form>
+        <div>
+            <input type="date" id="uploadedDate" style="margin: 5px;"/>
+            <div class="checkbox-inline" style="margin-left: 15px;">
+                <label><input type="checkbox" value="true" id="trendline"/>Add in Trendline</label>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit" style="margin: 5px;">Upload </button>
+    </form>
 
 </body>

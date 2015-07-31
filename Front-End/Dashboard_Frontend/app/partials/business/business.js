@@ -9,10 +9,10 @@ businessModule.config(['$routeProvider', function($routeProvider) {
   });
 }]);
 
-businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataService', 'getGraphDataService', function($scope, $http, getTimeLineDataService, getGraphDataService) {
+businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataService', 'getGraphDataService', '$timeout', function($scope, $http, getTimeLineDataService, getGraphDataService, $timeout) {
 
     var addedBugIds = [];
-    var BugzillaLink = "http://10.1.1.14/bugzilla/buglist.cgi?quicksearch="
+    var BugzillaLink = "http://10.1.1.14/bugzilla/buglist.cgi?quicksearch=";
         
     $scope.addBug = function(BugId) {
        addedBugIds.push(BugId);
@@ -33,7 +33,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                 {
                     if(i !== addedBugIds.length-1){
                         link += addedBugIds[i];
-                        link += "%2C%";
+                        link += "\%2C";
                     }
                     else{
                         link += addedBugIds[i];
@@ -74,23 +74,28 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         if($scope.leftIndex === $scope.BarChartIndex){
             document.getElementById("ButtonPrevData").disabled = true;
         }
+        else{
+            document.getElementById("ButtonPrevData").disabled = false;
+        }
         if($scope.rightIndex === $scope.BarChartIndex){
             document.getElementById("ButtonNextData").disabled = true;
         }
-        
-        if($scope.rightIndex === $scope.BarChartIndex){
-            for(var i =($scope.BarChartIndex-1)*10; i < $scope.length; i++){
-                $scope.BarChartOpen.push($scope.openData[i]);
-                $scope.BarChartCloned.push($scope.clonedData[i]);
-                $scope.BarChartDates.push($scope.totalDates[i]);
-            }
-        }
         else{
-            for(var i = ($scope.BarChartIndex-1)*10; i < $scope.BarChartIndex*10; i++){
-                $scope.BarChartOpen.push(d.open[i]);
-                $scope.BarChartCloned.push(d.cloned[i]);
-                $scope.BarChartDates.push($scope.totalDates[i]);
-            }
+            document.getElementById("ButtonNextData").disabled = false;
+        }
+        
+        var left = $scope.length - (($scope.rightIndex+1 - $scope.BarChartIndex)*10 + ($scope.rightIndex - $scope.BarChartIndex));
+        if(left < 0)
+            left = 0;
+        var right = $scope.length - (($scope.rightIndex - $scope.BarChartIndex)*10 + ($scope.rightIndex - $scope.BarChartIndex));
+        console.log('barchartindex - ' + $scope.BarChartIndex);
+        console.log('rightindex - ' + $scope.rightIndex);
+        console.log('left - ' + left);
+        console.log('right - ' + right);
+        for(var i = left; i < right; i++){
+            $scope.BarChartOpen.push($scope.openData[i]);
+            $scope.BarChartCloned.push($scope.clonedData[i]);
+            $scope.BarChartDates.push($scope.totalDates[i]);
         }
         
         var config = {};
@@ -112,7 +117,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                     x: {
                         type: 'category',
                         tick: {
-                            format: '%Y-%m-%d',
+                            format: '%Y-%m-%d'
                         },
                         label: {
                             text: 'Dates',
@@ -139,89 +144,128 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
        $scope.GenerateBarChart();
     };
     
+    $scope.showCharts = true;
+    $scope.showDefaultMessage = true;
+    $scope.showBarChart = true;
+    $scope.showBarChartMessage = true;
+    $scope.showMilestoneBugs = false;
     $scope.showGraph = function(number) {
         var config = {};
-        getGraphDataService.async(number).then(function(d) {
-            $scope.length = d.open.length;
-            $scope.openData = d.open;
-            $scope.clonedData = d.cloned;
-            $scope.totalDates = d.dates;
-            console.log('length - '+d.open.length);
-            if($scope.length%10 === 0){
-                $scope.rightIndex = $scope.length/10;
-            }
-            else{
-                $scope.rightIndex = ($scope.length/10) + 1;
-                $scope.rightIndex = parseInt($scope.rightIndex, 10);
-            }
-            
-            $scope.BarChartIndex = $scope.rightIndex;
-            $scope.GenerateBarChart();
-            config = {};
-            config.data = {};
-            config.pie = {};
-            config.data.type='pie';
-            config.pie.label = {};
-            config.pie.label.format = function(value,ratio,id){
-                return value;
-            };
-            config.legend = {};
-            config.legend.show = false;
+        if(number === 0)
+        {
+           $scope.showCharts = false;
+           $scope.showDefaultMessage = true;
+        }
+        else{
+            $scope.showCharts = true;
+            $scope.showDefaultMessage = false;
+            getGraphDataService.async(number).then(function(d) {
+                $scope.length = d.open.length;
+                $scope.openData = d.open;
+                $scope.clonedData = d.cloned;
+                $scope.totalDates = d.dates;
+                console.log('length - '+d.open.length);
 
-            config.bindto = '#assigned';
-            config.data.columns = [];
-            for(var i = 0;i < d.assignedopenedBugs.length;i++){
-                config.data.columns.push([]);
-                config.data.columns[i].push(d.assignee[i]);
-                config.data.columns[i].push(d.assignedopenedBugs[i]);
-            }
-            c3.generate(config);
+                
+                if($scope.length%10 === 0){
+                    $scope.rightIndex = $scope.length/10;
+                }
+                else{
+                    $scope.rightIndex = ($scope.length/10) + 1;
+                    $scope.rightIndex = parseInt($scope.rightIndex, 10);
+                }
 
-            config.bindto = '#customer';
-            config.data.columns = [];
-            for(var i = 0;i < d.customeropenedBugs.length;i++){
-                config.data.columns.push([]);
-                config.data.columns[i].push(d.customers[i]);
-                config.data.columns[i].push(d.customeropenedBugs[i]);
-            }        
-            c3.generate(config);
+                $scope.BarChartIndex = $scope.rightIndex;
+                if(d.open.length !== 0){
+                    $scope.showBarChart = true;
+                    $scope.showBarChartMessage = false;
+                    $scope.GenerateBarChart();
+                }
+                else{
+                    $scope.showBarChart = false;
+                    $scope.showBarChartMessage = true;
+                }
 
-            config.bindto = '#components';
-            config.data.columns = [];
-            for(var i = 0;i < d.componentopenedBugs.length;i++){
-                config.data.columns.push([]);
-                config.data.columns[i].push(d.components[i]);
-                config.data.columns[i].push(d.componentopenedBugs[i]);
-            }
-            c3.generate(config);
+                console.log('pie');
+                config = {};
+                config.data = {};
+                config.pie = {};
+                config.data.type='pie';
+                config.pie.label = {};
+                config.pie.label.format = function(value,ratio,id){
+                    return value;
+                };
+                config.tooltip = {
+                    format: {
+                        value: function (value, ratio, id) {
+                           return value;
+                        }
+                    }
+                }
+                config.legend = {};
+                config.legend.show = false;
 
-            config.bindto = '#assignedcloned';
-            config.data.columns = [];
-            for(var i = 0;i < d.assignedclonedBugs.length;i++){
-                config.data.columns.push([]);
-                config.data.columns[i].push(d.assignee[i]);
-                config.data.columns[i].push(d.assignedclonedBugs[i]);
-            }
-            c3.generate(config);
+                config.bindto = '#assigned';
+                config.data.columns = [];
+                
+                $scope.totalNewBugs = 0;
+                $scope.totalClonedBugs = 0;
+                
+                for(var i = 0;i < d.assignedopenedBugs.length;i++){
+                    config.data.columns.push([]);
+                    config.data.columns[i].push(d.assignee[i]);
+                    config.data.columns[i].push(d.assignedopenedBugs[i]);
+                    $scope.totalNewBugs += d.assignedopenedBugs[i];
+                }
+                c3.generate(config);
 
-            config.bindto = '#customercloned';
-            config.data.columns = [];
-            for(var i = 0;i < d.customerclonedBugs.length;i++){
-                config.data.columns.push([]);
-                config.data.columns[i].push(d.customers[i]);
-                config.data.columns[i].push(d.customerclonedBugs[i]);
-            }
-            c3.generate(config);
+                config.bindto = '#customer';
+                config.data.columns = [];
+                for(var i = 0;i < d.customeropenedBugs.length;i++){
+                    config.data.columns.push([]);
+                    config.data.columns[i].push(d.customers[i]);
+                    config.data.columns[i].push(d.customeropenedBugs[i]);
+                }        
+                c3.generate(config);
 
-            config.bindto = '#componentscloned';
-            config.data.columns = [];
-            for(var i = 0;i < d.componentclonedBugs.length;i++){
-                config.data.columns.push([]);
-                config.data.columns[i].push(d.components[i]);
-                config.data.columns[i].push(d.componentclonedBugs[i]);
-            }
-            c3.generate(config); 
-        });   
+                config.bindto = '#components';
+                config.data.columns = [];
+                for(var i = 0;i < d.componentopenedBugs.length;i++){
+                    config.data.columns.push([]);
+                    config.data.columns[i].push(d.components[i]);
+                    config.data.columns[i].push(d.componentopenedBugs[i]);
+                }
+                c3.generate(config);
+
+                config.bindto = '#assignedcloned';
+                config.data.columns = [];
+                for(var i = 0;i < d.assignedclonedBugs.length;i++){
+                    config.data.columns.push([]);
+                    config.data.columns[i].push(d.assignee[i]);
+                    config.data.columns[i].push(d.assignedclonedBugs[i]);
+                    $scope.totalClonedBugs += d.assignedclonedBugs[i];
+                }
+                c3.generate(config);
+
+                config.bindto = '#customercloned';
+                config.data.columns = [];
+                for(var i = 0;i < d.customerclonedBugs.length;i++){
+                    config.data.columns.push([]);
+                    config.data.columns[i].push(d.customers[i]);
+                    config.data.columns[i].push(d.customerclonedBugs[i]);
+                }
+                c3.generate(config);
+
+                config.bindto = '#componentscloned';
+                config.data.columns = [];
+                for(var i = 0;i < d.componentclonedBugs.length;i++){
+                    config.data.columns.push([]);
+                    config.data.columns[i].push(d.components[i]);
+                    config.data.columns[i].push(d.componentclonedBugs[i]);
+                }
+                c3.generate(config); 
+            });
+        }
     };
     
     $scope.timelineConfig = {};
@@ -268,6 +312,14 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                                  };
     $scope.timelineConfig.data = {};
     
+    $scope.timelineConfig.data.onclick = function(d, element){
+        addedBugIds = [];
+        console.log('onclick');
+        $scope.showMilestoneBugs = true;
+        $scope.showSelectedMilestoneData(d, element);
+    };
+    
+    
     $scope.indexofSelectedMilestone = 0;
     $scope.selectedMilestonefeatures = [];
     $scope.selectedMilestonedefects = [];
@@ -277,83 +329,172 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
     $scope.selectedMilestonefeaturesDates = [];
     $scope.selectedMilestonedefectsDates = [];
     $scope.showTimeLineData = false;
+    $scope.milestonebutton = true;
     
     $scope.$watch(function(scope) { return $scope.selectedMilestonefeaturescolorArray },
-        function(newValue, oldValue) {
-            document.getElementById("dateheading").innerHTML =
-                "Date - " + newValue + "";
-        }
+        function(newValue, oldValue) {}
        );
        
     $scope.$watch(function(scope) { return $scope.selectedMilestonedefectscolorArray },
-        function(newValue, oldValue) {
-            document.getElementById("dateheading").innerHTML =
-                "Date - " + newValue + "";
-        }
+        function(newValue, oldValue) {}
        );
     
     $scope.$watch(function(scope) { return $scope.showTimeLineData },
-        function(newValue, oldValue) {
-            document.getElementById("dateheading").innerHTML =
-                "Date - " + newValue + "";
-        }
+        function(newValue, oldValue) {}
        );
     
     $scope.$watch(function(scope) { return $scope.DateofSelectedMilestone },
-        function(newValue, oldValue) {
-            document.getElementById("dateheading").innerHTML =
-                "Date - " + newValue + "";
-        }
+        function(newValue, oldValue) {}
        );
     
     $scope.$watch(function(scope) { return $scope.selectedMilestonedefects },
-        function(newValue, oldValue) {
-            document.getElementById("dateheading").innerHTML =
-                "Date - " + newValue + "";
-        }
+        function(newValue, oldValue) {}
        );
        
     $scope.$watch(function(scope) { return $scope.selectedMilestonefeatures },
-        function(newValue, oldValue) {
-            document.getElementById("dateheading").innerHTML =
-                "Date - " + newValue + "";
-        }
+        function(newValue, oldValue) {}
        );
        
     $scope.$watch(function(scope) { return $scope.selectedMilestonefeaturesDates },
-        function(newValue, oldValue) {
-            document.getElementById("dateheading").innerHTML =
-                "Date - " + newValue + "";
-        }
+        function(newValue, oldValue) {}
        ); 
        
     $scope.$watch(function(scope) { return $scope.selectedMilestonedefectsDates },
-        function(newValue, oldValue) {
-            document.getElementById("dateheading").innerHTML =
-                "Date - " + newValue + "";
-        }
-       ); 
+        function(newValue, oldValue) {}
+       );
        
-    $scope.timelineConfig.data.onclick = function(d, element){
-        addedBugIds = [];
-        $scope.showSelectedMilestoneData(d, element);
-    };
+    $scope.$watch(function(scope) { return $scope.offset },
+        function(newValue, oldValue) {}
+    );
     
+    $scope.isoffsetchange = 0;
+    $scope.redIndexOffset = [];
+    $scope.greenIndexOffset = [];
+    $scope.offset = 0;
+    
+    $scope.changeOffsetNumber = function(){
+        $scope.redIndexOffset = [];
+        $scope.greenIndexOffset = [];
+        $scope.isoffsetchange = 1;
+        var newOffset = document.getElementById('offsetinput').value;
+        $scope.offset = newOffset;
+        $.growlUI('Offset Applied');
+        $scope.MilestoneDataDates();
+        $scope.selecetedMilestoneDataOffset();
+    };
     
     $scope.showSelectedMilestoneData = function(d, element){
         $scope.indexofSelectedMilestone = d.index;
         $scope.DateofSelectedMilestone = dates[d.index+1];
+        $scope.showTimeLineData = true;
+        $scope.selecetedMilestoneDataOffset();
+    };
+    
+    
+    
+    $scope.MilestoneDataDates = function(){
+        var flag = 0;
+        var featurebugDate = "";
+        for(var j = 0; j < $scope.MilestoneData.featuredates.length; j++){
+            var trimmedfeaturebugsDates = $scope.MilestoneData.featuredates[j].replace(/ /g,'');
+            for(var i = 0; i < trimmedfeaturebugsDates.length; i++){
+                if(trimmedfeaturebugsDates[i] !== ","){
+                    featurebugDate += trimmedfeaturebugsDates[i];
+                }
+                else
+                {
+                    if(featurebugDate !== "DateNotAvailable" && featurebugDate !== "Bugnotavailable/Resolved"){
+                        var bugdate = new Date(featurebugDate);
+                        var currentdate = new Date(dates[j+1]);
+                        currentdate.setDate(currentdate.getDate()-$scope.offset);
+                        if(bugdate > currentdate){
+                            flag = 1;
+                            colorArray[j] = "red";
+                            break;
+                        }
+                        else{
+                            colorArray[j] = "green";
+                        }
+                    }
+                    featurebugDate = "";
+                }
+                if(i === trimmedfeaturebugsDates.length-1)
+                {
+                    if(featurebugDate !== "DateNotAvailable" && featurebugDate !== "Bugnotavailable/Resolved"){
+                        var bugdate = new Date(featurebugDate);
+                        var currentdate = new Date(dates[j+1]);
+                        currentdate.setDate(currentdate.getDate()-$scope.offset);
+                        if(bugdate > currentdate){
+                            colorArray[j] = "red";
+                            flag = 1;
+                            break;
+                        }
+                        else{
+                            colorArray[j] = "green";
+                        }
+                    }
+                    featurebugDate = "";
+                }
+            }
+        }
+        var defectbugDate = "";
+        for(var j = 0; j < $scope.MilestoneData.defectdates.length; j++){
+            if(flag !== 1){
+                var trimmeddefectbugsDates = $scope.MilestoneData.defectdates[j].replace(/ /g,'');
+                for(var i = 0; i < trimmeddefectbugsDates.length; i++){
+                    if(trimmeddefectbugsDates[i] !== ","){
+                        defectbugDate += trimmeddefectbugsDates[i];
+                    }
+                    else
+                    {
+                        if(defectbugDate !== "DateNotAvailable" && defectbugDate !== "Bugnotavailable/Resolved"){
+                            var bugdate = new Date(defectbugDate);
+                            var currentdate = new Date(dates[j+1]);
+                             currentdate.setDate(currentdate.getDate()-$scope.offset);
+                            if(bugdate > currentdate){
+                                colorArray[j] = "red";
+                                break;
+                            }
+                            else{
+                                colorArray[j] = "green";
+                            }
+                        }
+                        defectbugDate = "";
+                    }
+                    if(i === trimmeddefectbugsDates.length-1)
+                    {
+                        if(defectbugDate !== "DateNotAvailable" && defectbugDate !== "Bugnotavailable/Resolved"){
+                            var bugdate = new Date(defectbugDate);
+                            var currentdate = new Date(dates[j+1]);
+                             currentdate.setDate(currentdate.getDate()-$scope.offset);
+                            if(bugdate > currentdate){
+                                colorArray[j] = "red";
+                                break;
+                            }
+                            else{
+                                colorArray[j] = "green";
+                            }
+                        }
+                        defectbugDate = "";
+                    }
+                }
+            }
+        }
+    };
+    
+    
+    
+    $scope.selecetedMilestoneDataOffset = function(){
+        
         $scope.selectedMilestonefeatures = [];
         $scope.selectedMilestonefeaturescolorArray = [];
         $scope.selectedMilestonedefectscolorArray = [];
         $scope.selectedMilestonedefects = [];
         $scope.selectedMilestonefeaturesDates = [];
         $scope.selectedMilestonedefectsDates = [];
-        $scope.showTimeLineData = true;
-        $scope.$digest();
         
         var featurebug = "";
-        var trimmedfeaturebugs = $scope.MilestoneData.featurebugs[d.index].replace(/ /g,'');
+        var trimmedfeaturebugs = $scope.MilestoneData.featurebugs[$scope.indexofSelectedMilestone].replace(/ /g,'');
         for(var i = 0; i < trimmedfeaturebugs.length; i++){
             if(trimmedfeaturebugs[i] !== ","){
                 featurebug += trimmedfeaturebugs[i];
@@ -371,7 +512,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         }
         
         var featurebugDate = "";
-        var trimmedfeaturebugsDates = $scope.MilestoneData.featuredates[d.index].replace(/ /g,'');
+        var trimmedfeaturebugsDates = $scope.MilestoneData.featuredates[$scope.indexofSelectedMilestone].replace(/ /g,'');
         for(var i = 0; i < trimmedfeaturebugsDates.length; i++){
             if(trimmedfeaturebugsDates[i] !== ","){
                 featurebugDate += trimmedfeaturebugsDates[i];
@@ -381,10 +522,13 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                 $scope.selectedMilestonefeaturesDates.push(featurebugDate);
                 var bugdate = new Date(featurebugDate);
                 var currentdate = new Date($scope.DateofSelectedMilestone);
-                if(bugdate <= currentdate)
+                currentdate.setDate(currentdate.getDate()-$scope.offset);
+                if(bugdate <= currentdate){
                     $scope.selectedMilestonefeaturescolorArray.push("green");
-                else
+                }
+                else{
                     $scope.selectedMilestonefeaturescolorArray.push("red");
+                }
                 featurebugDate = "";
             }
             if(i === trimmedfeaturebugsDates.length-1)
@@ -392,16 +536,19 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                 $scope.selectedMilestonefeaturesDates.push(featurebugDate);
                 var bugdate = new Date(featurebugDate);
                 var currentdate = new Date($scope.DateofSelectedMilestone);
-                if(bugdate <= currentdate)
+                currentdate.setDate(currentdate.getDate()-$scope.offset);
+                if(bugdate <= currentdate){
                     $scope.selectedMilestonefeaturescolorArray.push("green");
-                else
+                }
+                else{
                     $scope.selectedMilestonefeaturescolorArray.push("red");
+                }
                 featurebugDate = "";
             }
         }
         
         var defectbugDate = "";
-        var trimmeddefectbugsDates = $scope.MilestoneData.defectdates[d.index].replace(/ /g,'');
+        var trimmeddefectbugsDates = $scope.MilestoneData.defectdates[$scope.indexofSelectedMilestone].replace(/ /g,'');
         for(var i = 0; i < trimmeddefectbugsDates.length; i++){
             if(trimmeddefectbugsDates[i] !== ","){
                 defectbugDate += trimmeddefectbugsDates[i];
@@ -411,10 +558,13 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                 $scope.selectedMilestonedefectsDates.push(defectbugDate);
                 var bugdate = new Date(defectbugDate);
                 var currentdate = new Date($scope.DateofSelectedMilestone);
-                if(bugdate <= currentdate)
+                 currentdate.setDate(currentdate.getDate()-$scope.offset);
+                if(bugdate <= currentdate){
                     $scope.selectedMilestonedefectscolorArray.push("green");
-                else
+                }
+                else{
                     $scope.selectedMilestonedefectscolorArray.push("red");
+                }
                 defectbugDate = "";
             }
             if(i === trimmeddefectbugsDates.length-1)
@@ -422,16 +572,19 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                 $scope.selectedMilestonedefectsDates.push(defectbugDate);
                 var bugdate = new Date(defectbugDate);
                 var currentdate = new Date($scope.DateofSelectedMilestone);
-                if(bugdate <= currentdate)
+                 currentdate.setDate(currentdate.getDate()-$scope.offset);
+                if(bugdate <= currentdate){
                     $scope.selectedMilestonedefectscolorArray.push("green");
-                else
+                }
+                else{
                     $scope.selectedMilestonedefectscolorArray.push("red");
+                }
                 defectbugDate = "";
             }
         }
         
         var defectbug = "";
-        var trimmeddefectbugs = $scope.MilestoneData.defectbugs[d.index].replace(/ /g,'');
+        var trimmeddefectbugs = $scope.MilestoneData.defectbugs[$scope.indexofSelectedMilestone].replace(/ /g,'');
         for(var i = 0; i < trimmeddefectbugs.length; i++){
             if(trimmeddefectbugs[i] !== ","){
                 defectbug += trimmeddefectbugs[i];
@@ -441,14 +594,20 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                 $scope.selectedMilestonedefects.push(defectbug);
                 defectbug = "";
             }
-            if(i === trimmedfeaturebugs.length-1)
+            if(i === trimmeddefectbugs.length-1)
             {
                 $scope.selectedMilestonedefects.push(defectbug);
                 defectbug = "";
             }
-        }
+        };
         
-        $scope.$digest();
+        if($scope.isoffsetchange === 1){
+            $scope.isoffsetchange = 0;
+            c3.generate($scope.timelineConfig);
+        }
+        $timeout(function(){
+            //any code in here will automatically have an apply run afterwards
+        });
     };
     
     
@@ -491,7 +650,6 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         text, i, title, value;
         text = "<div id='tooltip' class='d3-tip'>";
         title = dates[data[0].index+1];
-        console.log('Index - '+data[0].index);
         text += "<span class='info'><b><u>Date</u></b></span><br>";
         text += "<span class='info'>"+ title +"</span><br>";
         text += "<span class='info'><b><u>Features</u> : </b> " + features[data[0].index] + "</span><br>";
@@ -506,6 +664,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                                   ];
     var i;
     
+    var w = document.getElementById('businessparent').offsetWidth;
     $scope.makeTree = function(){
 
         var margin = {
@@ -514,7 +673,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
             bottom: 20,
             left: 120
         },
-        width = 960 - margin.right - margin.left,
+        width = w - margin.right - margin.left,
         height = 800 - margin.top - margin.bottom;
 
         var i = 0,
@@ -535,31 +694,26 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
-        //d3.json("https://gist.githubusercontent.com/mbostock/1093025/raw/a05a94858375bd0ae023f6950a2b13fac5127637/flare.json", function(error, flare) {
-        d3.json("http://192.168.137.3:8084/project_manage_dashboard/webresources/business/tree", function(error, flare) { 
+        d3.json("http://10.3.2.134:8080/project_manage_dashboard/webresources/business/tree", function(error, flare) { 
         if (error) throw error;
 
           root = flare.root;
           root.x0 = height / 2;
           root.y0 = 0;
 
-          function collapse(d) {
+        /*  function collapse(d) {
             if (d.children) {
               d._children = d.children;
               d._children.forEach(collapse);
               d.children = null;
             }
-          }
-
-          root.children.forEach(collapse);
-          update(root);
+          } 
+          root.children.forEach(collapse);*/
+          
+          update(root); 
         });
 
         d3.select(self.frameElement).style("height", "800px");
-        
-        function zoomed() {
-            svg.attr("transform", "translate(" + d3.event.translate[0] + ",0)scale(" + d3.event.scale + ")");
-        }
         
         function update(source) {
 
@@ -577,8 +731,8 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
           // Enter any new nodes at the parent's previous position.
           var nodeEnter = node.enter().append("g")
               .attr("class", "node")
-              .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-              .on("click", click);
+              .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
+              //.on("click", click);
 
           nodeEnter.append("circle")
               .attr("r", 1e-6)
@@ -670,7 +824,7 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
             }
 
             // Toggle children on click.
-            function click(d) {
+           /* function click(d) {
                 if (d.children) {
                     d._children = d.children;
                     d.children = null;
@@ -679,10 +833,15 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                     d._children = null;
                 }
                 update(d);
-            }
+            }*/
+    };
 
         $scope.branchName;
         $scope.setTimeLineData = function(TimeLineData){
+            $scope.offset = 0;
+            $timeout(function(){
+                //any code in here will automatically have an apply run afterwards
+            });
             colorArray = TimeLineData.colorArray;
             features = TimeLineData.featurescount;
             defects = TimeLineData.defectscount;
@@ -702,6 +861,8 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
         };
         
         function TimeLine(d){
+            $scope.showMilestoneBugs = false;
+            $scope.milestonebutton = false;
             console.log(d.target);
             $scope.showGraph(d.target.branchid);
             $scope.branchName = d.target.name;
@@ -709,20 +870,11 @@ businessModule.controller('businessCtrl', ['$scope','$http','getTimeLineDataServ
                 $scope.setTimeLineData(response);
             });  
         }
-    };
-    $scope.ShowTimeLine = function(data){
-        $scope.branchName = "MTAS-9.1";
-        if(data === 0){
-            getTimeLineDataService.getTimeLineData(6).success(function(response){
-              $scope.setTimeLineData(response);
-            });
-        }
-    };
 }]);
 
 businessModule.service('getTimeLineDataService', ['$rootScope','$http', function($rootScope, $http){
     this.getTimeLineData=function(num){
-        var link = "http://192.168.137.3:8084/project_manage_dashboard/webresources/business/getTimeline/";
+        var link = "http://10.3.2.134:8080/project_manage_dashboard/webresources/business/getTimeline/";
         link += num;
         return $http.get(link);
         //return $http.get('http://localhost:8383/Dashboard_Frontend/milestonesdata.json');
@@ -730,7 +882,7 @@ businessModule.service('getTimeLineDataService', ['$rootScope','$http', function
 }]);
 
 businessModule.factory('getGraphDataService', function($http) {
-  var urlString = "http://192.168.137.3:8084/project_manage_dashboard/webresources/business/monthlyBar/7";
+  var urlString = "http://10.3.2.134:8080/project_manage_dashboard/webresources/business/monthlyBar/";
     var getGraphDataService = {
     async: function(num) {
       var promise = $http.get(urlString+'/'+num).then(function (response) {

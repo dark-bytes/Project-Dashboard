@@ -1,20 +1,25 @@
-<div class="parent">
-    <div class="child-left">
-      <h2>Branch Tree</h2>
+<div class="parent" id="businessparent">
+    <div class="child-left container-fluid">
+      <h1>Branch Tree</h1>
+      <h5 ng-show="showDefaultMessage" style="color: #843534">Click on a branch to view its data</h5>
       <a href="#/relationtable"><button type="button" class="btn btn-primary btn-md" style="float: right;">Edit Tree</button></a>
+      <a ng-show="milestonebutton" href="#/editmilestones"><button type="button" class="btn btn-primary btn-md" style="float: right;">Edit Milestones</button></a>
       <div class="branchtree" ng-init="makeTree()"></div>
     </div>
 
-    <div class="child-right">
-      <h2>Timeline</h2>
-      <a href="#/editmilestones"><button type="button" class="btn btn-primary btn-md" style="float: right;">Edit Milestones</button></a>
-      <h4>Branch - {{branchName}}</h4>
-      <p>Info : click on the circles in the timeline to view list of features and defects</p>
+    <div class="child-right container-fluid">
+        <h1 ng-show="showCharts">Milestones</h1>
+        <div ng-show="showCharts">
+          <h5>Offset : </h5><input id="offsetinput" type="number" value="{{offset}}"><button type="button" class="btn btn-primary btn-xs" ng-click="changeOffsetNumber()">Apply Offset</button>
+        </div>
+      <a ng-show="showCharts" href="#/editmilestones"><button type="button" class="btn btn-primary btn-md" style="float: right;">Edit Milestones</button></a>
+      <h4 ng-show="showCharts">Branch - {{branchName}}</h4>
+      <p ng-show="showCharts" style="color: #843534">Info : click on the circles in the timeline to view list of features and defects</p>
       <div id="timeline" ng-init="ShowTimeLine(0)">
       </div>
       
-      <h3 id="dateheading" ng-show="showTimeLineData">Date - {{DateofSelectedMilestone}}</h3>
-      <div id="timelinedata" ng-show="showTimeLineData">
+      <h3 id="dateheading" ng-show="showMilestoneBugs">Date - {{DateofSelectedMilestone}}</h3>
+      <div id="timelinedata" ng-show="showMilestoneBugs">
           <div id = "defecttable">
             <table class="table table-striped">
                 <thead>
@@ -52,47 +57,46 @@
       </div>
     </div>
 </div> 
-<div>
-    <table style="width: 100%; height:">
-        <tr ng-init = "showGraph(1)">
-            <td>
-                <div style="float: right;">
-                    <button type="button" ng-click="NextDataBarChart()" id="ButtonNextData" class="btn btn-primary btn-xs" style="width: 40%; float: right;">Next</button>
-                    <button type="button" ng-click="PreviousDataBarChart()" id="ButtonPrevData" class="btn btn-primary btn-xs" style="width: 60%; float: left;">Previous</button>
-                </div>
-                <h4>Bar Chart</h4>
-                <div id ="chart"></div>
-            </td>
-        </tr>
-    </table>
-    <table style="width: 100%; height:">
-        <tr>
-            <td class="col-sm-4">
-                <h4>Assigned and Not Cloned Bugs</h4>
-                <div id = "assigned"></div>
-            </td>
-            <td class = "col-sm-4">
-                <h4>Customers and Not Cloned Bugs</h4>
-                <div id ="customer"></div>
-            </td>
-            <td class = "col-sm-4">
-                <h4>Components and Not Cloned Bugs</h4>
-                <div id ="components"></div>
-            </td>
-        </tr>
-        <tr>
-            <td class ="col-sm-4">
-                <h4>Assigned and Cloned Bugs</h4>
-                <div id = "assignedcloned"></div>
-            </td>
-            <td class ="col-sm-4">
-                <h4>Customer and Cloned Bugs</h4>
-                <div id = "customercloned"></div>
-            </td>
-            <td class = "col-sm-4">
-                <h4>Components and Cloned Bugs</h4>
-                <div id ="componentscloned"></div>
-            </td>        
-        </tr>
-    </table> 
+<div class="container-fluid">
+    <div id="ChartDiv" ng-show="showCharts">
+        <h1>Bugs Trend</h1>
+        <table style="width: 100%; height:">
+            <tr ng-init = "showGraph(0)">
+                <td>
+                    <div style="float: right;">
+                        <button type="button" ng-click="NextDataBarChart()" id="ButtonNextData" class="btn btn-primary btn-xs" style="width: 40%; float: right;">Next</button>
+                        <button type="button" ng-click="PreviousDataBarChart()" id="ButtonPrevData" class="btn btn-primary btn-xs" style="width: 60%; float: left;">Previous</button>
+                    </div>
+                    <h4>Bar Chart</h4>
+                    <h6 ng-show="showBarChartMessage">Data for Bar Chart Not Available</h6>
+                    <div id ="chart" ng-show="showBarChart"></div>
+                </td>
+            </tr>
+        </table>
+        <h1>Pie Charts</h1>
+        <table style="width: 100%; margin-top: 50px;">
+            <thead>
+                <tr>
+                  <th class="col-xs-3"></th>
+                  <th class="col-xs-3"><h2>Engineer View</h2></th>
+                  <th class="col-xs-3"><h2>Customer View</h2></th>
+                  <th class="col-xs-3"><h2>Component View</h2></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="col-xs-3"><h2>New Bugs</h2><p>Total new bugs - {{totalNewBugs}}</p></td>
+                    <td class="col-xs-3"><div id = "assigned"></div></td>
+                    <td class="col-xs-3"><div id = "customer"></div></td>
+                    <td class="col-xs-3"><div id = "components"></div></td>
+                </tr>
+                <tr>
+                    <td class="col-xs-3"><h2>Cloned Bugs</h2><p>Total cloned bugs - {{totalClonedBugs}}</p></td>
+                    <td class="col-xs-3"><div id = "assignedcloned"></div></td>
+                    <td class="col-xs-3"><div id = "customercloned"></div></td>
+                    <td class="col-xs-3"><div id = "componentscloned"></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div> 
 </div>

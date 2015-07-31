@@ -19,7 +19,7 @@ mission_vision_mod.controller('mission_visionCtrl', ['$scope','$http','getMissio
 
 mission_vision_mod.service('getMissionDataService', ['$rootScope','$http', function($rootScope, $http){
     this.getMissionData=function(){
-        return $http.get('http://192.168.137.3:8084/project_manage_dashboard/webresources/mission/all');
+        return $http.get('http://10.3.2.134:8080/project_manage_dashboard/webresources/mission/all');
        //return $http.get('m_id.json');
     };
 }]);
