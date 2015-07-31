@@ -17,6 +17,8 @@
     <class>businessCharts.entityClasses.CustomerList</class>
     <class>mission.MissionInfo</class>
     <class>mission.MissionId</class>
+    <class>businessCharts.entityClasses.FeatureBugTable</class>
+    <class>businessCharts.FeatureBugTable</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/dashboard?zeroDateTimeBehavior=convertToNull"/>

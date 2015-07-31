@@ -21,12 +21,12 @@ import org.apache.jasper.tagplugins.jstl.core.Url;
  */
 public class to_run_post_req {
     public static void main(String args[]) throws MalformedURLException, IOException{
-        URL uri = new URL("http://localhost:8080/project_manage_dashboard/webresources/mission/edit");
+        URL uri = new URL("http://localhost:8084/project_manage_dashboard/webresources/business/putMstones");
         HttpURLConnection conn = (HttpURLConnection) uri.openConnection();
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
 	conn.setRequestProperty("Content-Type", "application/json");
-        
+       /* 
         String input = "{\n" +
 "    \"vision\":\"ajhsdahjv\",\n" +
 "    \"deleteId\":[1,-2,3],\n" +
@@ -61,6 +61,13 @@ public class to_run_post_req {
 "            \"add\":1\n" +
 "        }\n" +
 "    ]\n" +
+"}";*/
+        String input = "{\n" +
+"    \"dates\" : [\"2013-01-06\", \"2013-01-07\", \"2013-01-08\", \"2013-01-09\", \"2013-01-10\", \"2013-01-11\"],\n" +
+"    \"branch\" : [\"MTAS-9.3\", \"VMAS-1.0\", \"VMAS-1.0\", \"VMAS-1.0\", \"VMAS-1.0\", \"VMAS-1.0\"],\n" +
+"    \"features\" : [\"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\"],\n" +
+"    \"defects\" : [\"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\", \"1111, 1112, 1113, 1114\"],\n" +
+"    \"milestoneId\": []\n" +
 "}";
         //BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\SUDHANSHU\\Documents\\NetBeansProjects\\project_manage_dashboard\\src\\java\\mission\\sample.json"));
         //String test;

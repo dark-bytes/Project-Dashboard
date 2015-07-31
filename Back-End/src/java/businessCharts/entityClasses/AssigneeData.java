@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -30,10 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "AssigneeData.findAll", query = "SELECT a FROM AssigneeData a"),
     @NamedQuery(name = "AssigneeData.findById", query = "SELECT a FROM AssigneeData a WHERE a.id = :id"),
     @NamedQuery(name = "AssigneeData.findByAssigneeName", query = "SELECT a FROM AssigneeData a WHERE a.assigneeName = :assigneeName"),
-    @NamedQuery(name = "AssigneeData.findByBranchid", query = "SELECT a FROM AssigneeData a WHERE a.branchid = :branchid"),
     @NamedQuery(name = "AssigneeData.findByOpenBugs", query = "SELECT a FROM AssigneeData a WHERE a.openBugs = :openBugs"),
-    @NamedQuery(name = "AssigneeData.findByClonedBugs", query = "SELECT a FROM AssigneeData a WHERE a.clonedBugs = :clonedBugs"),
-    @NamedQuery(name = "AssigneeData.findByParentId", query = "SELECT a FROM AssigneeData a WHERE a.parentId = :parentId")})
+    @NamedQuery(name = "AssigneeData.findByClonedBugs", query = "SELECT a FROM AssigneeData a WHERE a.clonedBugs = :clonedBugs")})
 public class AssigneeData implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
@@ -46,16 +46,16 @@ public class AssigneeData implements Serializable {
     @Size(min = 1, max = 100)
     @Column(name = "assignee_name")
     private String assigneeName;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "branchid")
-    private int branchid;
     @Column(name = "openBugs")
     private Integer openBugs;
     @Column(name = "clonedBugs")
     private Integer clonedBugs;
-    @Column(name = "parent_id")
-    private Integer parentId;
+    @JoinColumn(name = "branchid", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private BranchName branchid;
+    @JoinColumn(name = "parent_id", referencedColumnName = "ID")
+    @ManyToOne
+    private BranchName parentId;
 
     public AssigneeData() {
     }
@@ -64,10 +64,9 @@ public class AssigneeData implements Serializable {
         this.id = id;
     }
 
-    public AssigneeData(Integer id, String assigneeName, int branchid) {
+    public AssigneeData(Integer id, String assigneeName) {
         this.id = id;
         this.assigneeName = assigneeName;
-        this.branchid = branchid;
     }
 
     public Integer getId() {
@@ -86,14 +85,6 @@ public class AssigneeData implements Serializable {
         this.assigneeName = assigneeName;
     }
 
-    public int getBranchid() {
-        return branchid;
-    }
-
-    public void setBranchid(int branchid) {
-        this.branchid = branchid;
-    }
-
     public Integer getOpenBugs() {
         return openBugs;
     }
@@ -110,11 +101,19 @@ public class AssigneeData implements Serializable {
         this.clonedBugs = clonedBugs;
     }
 
-    public Integer getParentId() {
+    public BranchName getBranchid() {
+        return branchid;
+    }
+
+    public void setBranchid(BranchName branchid) {
+        this.branchid = branchid;
+    }
+
+    public BranchName getParentId() {
         return parentId;
     }
 
-    public void setParentId(Integer parentId) {
+    public void setParentId(BranchName parentId) {
         this.parentId = parentId;
     }
 

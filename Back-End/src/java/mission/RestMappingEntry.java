@@ -7,8 +7,8 @@ package mission;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import javax.persistence.EntityManagerFactory;
@@ -21,21 +21,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
-import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.ProcessBuilder.Redirect.Type;
+import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
 import mission.editmission.EditMission;
-import static org.glassfish.jersey.server.model.Parameter.Source.PATH;
-import static org.glassfish.jersey.uri.UriComponent.Type.PATH;
 /**
  * REST Web Service
  *
@@ -66,23 +61,31 @@ public class RestMappingEntry {
      * @throws java.io.FileNotFoundException
      */
     @GET
+    @Path("getphoto")
+    @Produces("image/png")
+    public Response getPhoto() throws IOException{
+        String fileLocation = "C:\\Users\\Public\\Documents\\Dashboard_External\\missionphoto.jpg";
+        BufferedImage bufferedImage  = ImageIO.read(new File(fileLocation));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(bufferedImage, "jpg", baos);
+        byte[] imageData = baos.toByteArray();
+        return Response.ok(imageData).build();
+    }
+    @GET
     @Path("all")
     @Produces("application/json")
     public String getJson() throws FileNotFoundException, IOException {
         //TODO return proper representation object
         List<MissionJsonGenerator> sample = new ArrayList<MissionJsonGenerator>();
         
-        
-     //   String vision = File.readAllline
-        BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Public\\Documents\\vision.txt"));
+        BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Public\\Documents\\Dashboard_External\\vision.txt"));
         String vision = br.readLine();
         factory = Persistence.createEntityManagerFactory(p_unit_name);
         EntityManager em =  factory.createEntityManager();
         List<MissionId> list = em.createQuery("SELECT m FROM MissionId m").getResultList();
         List<MissionInfo> minfo;
         for(MissionId id: list){
-         //   System.out.println(id.getId());
-            Query q = factory.createEntityManager().createQuery("SELECT m FROM MissionInfo m where m.missionId.id = :name");
+            Query q = em.createQuery("SELECT m FROM MissionInfo m where m.missionId.id = :name");
             q.setParameter("name", id.getId());
            
             minfo = q.getResultList();
@@ -115,11 +118,7 @@ public class RestMappingEntry {
         EntityManager em = factory.createEntityManager();
         em.getTransaction().begin();
         Query q = em.createNamedQuery("MissionId.findAll");//Query("DELETE FROM MissionId m where m.id = :name");
-        List<MissionId> list = q.getResultList();
-        
-        //q.setParameter("name", 4);
-        //q.executeUpdate();
-        //em.getTransaction().commit();
+        List<MissionId> list = q.getResultList();    
         return list;
     }
     @POST

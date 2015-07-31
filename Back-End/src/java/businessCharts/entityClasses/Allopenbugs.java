@@ -29,8 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Allopenbugs.findByDate", query = "SELECT a FROM Allopenbugs a WHERE a.allopenbugsPK.date = :date"),
     @NamedQuery(name = "Allopenbugs.findByOpenCloned", query = "SELECT a FROM Allopenbugs a WHERE a.openCloned = :openCloned"),
     @NamedQuery(name = "Allopenbugs.findByOpenNotCloned", query = "SELECT a FROM Allopenbugs a WHERE a.openNotCloned = :openNotCloned"),
-    @NamedQuery(name = "Allopenbugs.findByBranchId", query = "SELECT a FROM Allopenbugs a WHERE a.allopenbugsPK.branchId = :branchId"),
-    @NamedQuery(name = "Allopenbugs.findByParentId", query = "SELECT a FROM Allopenbugs a WHERE a.parentId = :parentId")})
+    @NamedQuery(name = "Allopenbugs.findByBranchId", query = "SELECT a FROM Allopenbugs a WHERE a.allopenbugsPK.branchId = :branchId")})
 public class Allopenbugs implements Serializable {
     private static final long serialVersionUID = 1L;
     @EmbeddedId
@@ -39,11 +38,12 @@ public class Allopenbugs implements Serializable {
     private Integer openCloned;
     @Column(name = "openNotCloned")
     private Integer openNotCloned;
-    @Column(name = "parent_id")
-    private Integer parentId;
     @JoinColumn(name = "branch_id", referencedColumnName = "ID", insertable = false, updatable = false)
     @ManyToOne(optional = false)
     private BranchName branchName;
+    @JoinColumn(name = "parent_id", referencedColumnName = "ID")
+    @ManyToOne
+    private BranchName parentId;
 
     public Allopenbugs() {
     }
@@ -80,20 +80,20 @@ public class Allopenbugs implements Serializable {
         this.openNotCloned = openNotCloned;
     }
 
-    public Integer getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Integer parentId) {
-        this.parentId = parentId;
-    }
-
     public BranchName getBranchName() {
         return branchName;
     }
 
     public void setBranchName(BranchName branchName) {
         this.branchName = branchName;
+    }
+
+    public BranchName getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(BranchName parentId) {
+        this.parentId = parentId;
     }
 
     @Override

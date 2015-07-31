@@ -217,7 +217,7 @@ public class EditMission {
                 File path = new File("").getAbsoluteFile();
                 if(vision.length() > 0 || vision != null){
                     System.out.println(path);
-                    FileWriter writer = new FileWriter("C:\\Users\\Public\\Documents\\vision.txt");
+                    FileWriter writer = new FileWriter("C:\\Users\\Public\\Documents\\Dashboard_External\\vision.txt");
                     BufferedWriter br = new BufferedWriter(writer);
                     br.write(vision);
                     br.close();

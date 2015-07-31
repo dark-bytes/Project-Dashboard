@@ -23,7 +23,6 @@
 60.
 */
 package org.netbeans.rest.application.config;
-
 import java.util.Set;
 import javax.ws.rs.core.Application;
 //rest web resources
@@ -38,6 +37,7 @@ public class ApplicationConfig extends Application {
     public Set<Class<?>> getClasses() {
         Set<Class<?>> resources = new java.util.HashSet<>();
         addRestResourceClasses(resources);
+    //    
         return resources;
     }
 
@@ -49,6 +49,7 @@ public class ApplicationConfig extends Application {
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(businessCharts.BusinessResource.class);
+        resources.add(businessCharts.NewCrossOriginResourceSharingFilter.class);
         resources.add(mission.NewCrossOriginResourceSharingFilter.class);
         resources.add(mission.RestMappingEntry.class);
     }

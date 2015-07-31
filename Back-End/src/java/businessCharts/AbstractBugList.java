@@ -13,13 +13,19 @@ import javax.persistence.Persistence;
  *
  * @author ssingh2
  */
-public abstract class AbstractBugList {
+public abstract class AbstractBugList{
+    String p_unit_name;
     EntityManagerFactory factory;
-    String p_unit_name = "project_manage_dashboardPU";    
     EntityManager em;
-    public abstract void put() throws Exception;
+    
     public void initializeFactory(){
+        p_unit_name =  "project_manage_dashboardPU";
         factory = Persistence.createEntityManagerFactory(p_unit_name);
-        EntityManager em = factory.createEntityManager();
+        em = factory.createEntityManager();
     }
+    public void closeFactory(){
+        em.close();
+        factory.close();
+    }
+    public abstract void put() throws Exception;
 }

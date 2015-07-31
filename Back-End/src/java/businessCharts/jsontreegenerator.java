@@ -20,6 +20,7 @@ import javafx.util.Pair;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 /**
  *
@@ -55,10 +56,10 @@ public class jsontreegenerator {
             return this.children;
         }
         public void print(){
-            System.out.println(name + branchid + activecount + active);
+       //     System.out.println(name + branchid + activecount + active);
         }
     }
-    Node dfs(List<Node> Tree,Integer index){
+    Node dfs(List<Node> Tree,Integer index) throws Exception{
         Node tree = new Node(Tree.get(index).name,Tree.get(index).branchid,Tree.get(index).activecount,Tree.get(index).active);
         int active = 0;
         for(Node child : Tree.get(index).children){
@@ -74,32 +75,43 @@ public class jsontreegenerator {
         return tree;
     }
     
-    public void treeGenerate(){
+    public void treeGenerate() throws Exception{
         factory = Persistence.createEntityManagerFactory(p_unit_name);
         EntityManager em = factory.createEntityManager();
    //     TreeMap< Integer, TreeMap< Integer, TreeMap<Integer,Integer> > > tmap = new TreeMap<Integer, TreeMap< Integer, TreeMap<Integer,Integer> > >();
         
-        List<BranchName> brname = new ArrayList<BranchName>();
         List<BranchParent> brparent = new ArrayList<BranchParent>();
-        brname = em.createNamedQuery("BranchName.findAll").getResultList();
-        brparent = em.createNamedQuery("BranchParent.findAll").getResultList();
-        int count = brparent.size();
-        System.out.println(count);
+        brparent = em.createQuery("SELECT b from BranchParent b").getResultList();
+        Object obj = em.createQuery("SELECT max(b.id) FROM BranchName b").getSingleResult();
+        int count = ((Number) obj).intValue();
+  //      System.out.println(count);
         List< Node > Tree = Arrays.asList(new Node[count + 1]);
         Queue< Integer > queue = new LinkedList< Integer > ();
-        
         for(BranchParent brp : brparent){
-            Node temp = new Node(brp.getBranchName().getBranchName(),brp.getId(),0,brp.getBranchName().getStatus());
+            List<BranchName> brname = new ArrayList<BranchName>();
+            Query q = em.createQuery("SELECT b FROM BranchName b where b.id = :id");
+            q.setParameter("id", brp.getId());
+            brname = q.getResultList();
+            System.out.println(brname.get(0).getBranchName() + brname.get(0).getStatus());
+            Node temp = new Node(brname.get(0).getBranchName(),brp.getId(),0,brname.get(0).getStatus());
             Tree.set(brp.getId(), temp);
         }
-        
+ //       System.out.println("Size is" + Tree.size());
         for(BranchParent brp : brparent){
-            Node temp = new Node(brp.getBranchName().getBranchName(),brp.getId(),0,brp.getBranchName().getStatus());            
+            List<BranchName> brname = new ArrayList<BranchName>();
+            Query q = em.createQuery("SELECT b FROM BranchName b where b.id = :id");
+            q.setParameter("id", brp.getId());
+            brname = q.getResultList();
+            System.out.println(brname.get(0).getBranchName() + brname.get(0).getStatus());
+            Node temp = new Node(brname.get(0).getBranchName(),brp.getId(),0,brname.get(0).getStatus());
+       //     Node temp = new Node(brp.getBranchName().getBranchName(),brp.getId(),0,brp.getBranchName().getStatus());            
             if(Objects.equals(brp.getId(), brp.getParentid().getId())){
                 queue.add(brp.getId());
             }
-            else
+            else{//System.out.println(brp.getParentid().getId());
                 Tree.get(brp.getParentid().getId()).children.add(temp);
+                
+            }
         }
         while(!queue.isEmpty()){
             Node temp = dfs(Tree,queue.remove());
@@ -107,5 +119,7 @@ public class jsontreegenerator {
             root.activecount += temp.activecount;
             root.children.add(temp);
         }
+        em.close();
+        factory.close();
     }
 }

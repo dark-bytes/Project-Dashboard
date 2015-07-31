@@ -26,7 +26,6 @@ public class BugsListAssignee extends AbstractBugList{
     public void put() throws Exception{
         initializeFactory();
         List<BranchName> list = em.createQuery("SELECT b FROM BranchName b").getResultList();
-        List<BranchParent> pr = em.createQuery("SELECT b from BranchParent b").getResultList();
         Map< String,TreeMap< String,Pair< Integer, Integer> > > assigneeList = new TreeMap < > ();
        // AssigneeData ass = new AssigneeData();
         int index = 0;
@@ -36,25 +35,31 @@ public class BugsListAssignee extends AbstractBugList{
         em.getTransaction().begin();
         em.createNativeQuery("TRUNCATE TABLE assignee_data").executeUpdate();
         em.getTransaction().commit();
-       
+        System.out.println(assigneeList.size());
         for(BranchName bid : list ){
             TreeMap< String,Pair< Integer, Integer> > entry = assigneeList.get(bid.getBranchName());
-            int parentId = list.get(index++).getBranchParent().getParentid().getId();
-            
-            for(Map.Entry< String,Pair<Integer,Integer> > entry2 : entry.entrySet()){
-                System.out.println(entry2.getValue().getValue() + " " + entry2.getValue().getKey() + " " + entry2.getKey()+ " " + bid.getId());
-                
-                AssigneeData ass = new AssigneeData();
-                ass.setClonedBugs(entry2.getValue().getValue());
-                ass.setOpenBugs(entry2.getValue().getKey());
-                ass.setBranchid(bid.getId());
-                ass.setAssigneeName(entry2.getKey());
-                ass.setParentId(parentId);
-                
-                em.getTransaction().begin();
-                em.persist(ass);
-                em.getTransaction().commit();
+         //   int parentId = list.get(index++).getBranchParent().getParentid().getId();
+            System.out.println("Inside BranchName tellme" + bid.getBranchName());
+            try{
+                for(Map.Entry< String,Pair<Integer,Integer> > entry2 : entry.entrySet()){
+                    System.out.println(entry2.getValue().getValue() + " " + entry2.getValue().getKey() + " " + entry2.getKey()+ " " + bid.getId());
+
+                    AssigneeData ass = new AssigneeData();
+                    ass.setClonedBugs(entry2.getValue().getKey());
+                    ass.setOpenBugs(entry2.getValue().getValue());
+                    ass.setBranchid(bid);
+                    ass.setAssigneeName(entry2.getKey());
+                    Query q = em.createQuery("SELECT b FROM BranchParent b WHERE b.id = :id");
+                    q.setParameter("id", bid.getId());
+                    List<BranchParent> brp = q.getResultList();
+                    ass.setParentId(brp.get(0).getParentid());
+                    em.getTransaction().begin();
+                    em.persist(ass);
+                    em.getTransaction().commit();
+                }
             }
+            catch(Exception ex){}
         }
+        closeFactory();
     }
 }

@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -29,8 +31,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "ComponentList.findAll", query = "SELECT c FROM ComponentList c"),
     @NamedQuery(name = "ComponentList.findById", query = "SELECT c FROM ComponentList c WHERE c.id = :id"),
     @NamedQuery(name = "ComponentList.findByComponentList", query = "SELECT c FROM ComponentList c WHERE c.componentList = :componentList"),
-    @NamedQuery(name = "ComponentList.findByBranchId", query = "SELECT c FROM ComponentList c WHERE c.branchId = :branchId"),
-    @NamedQuery(name = "ComponentList.findByParentId", query = "SELECT c FROM ComponentList c WHERE c.parentId = :parentId"),
     @NamedQuery(name = "ComponentList.findByOpen", query = "SELECT c FROM ComponentList c WHERE c.open = :open"),
     @NamedQuery(name = "ComponentList.findByCloned", query = "SELECT c FROM ComponentList c WHERE c.cloned = :cloned")})
 public class ComponentList implements Serializable {
@@ -43,14 +43,16 @@ public class ComponentList implements Serializable {
     @Size(max = 200)
     @Column(name = "component_list")
     private String componentList;
-    @Column(name = "branch_id")
-    private Integer branchId;
-    @Column(name = "parent_id")
-    private Integer parentId;
     @Column(name = "open")
     private Integer open;
     @Column(name = "cloned")
     private Integer cloned;
+    @JoinColumn(name = "branch_id", referencedColumnName = "ID")
+    @ManyToOne
+    private BranchName branchId;
+    @JoinColumn(name = "parent_id", referencedColumnName = "ID")
+    @ManyToOne
+    private BranchName parentId;
 
     public ComponentList() {
     }
@@ -75,22 +77,6 @@ public class ComponentList implements Serializable {
         this.componentList = componentList;
     }
 
-    public Integer getBranchId() {
-        return branchId;
-    }
-
-    public void setBranchId(Integer branchId) {
-        this.branchId = branchId;
-    }
-
-    public Integer getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Integer parentId) {
-        this.parentId = parentId;
-    }
-
     public Integer getOpen() {
         return open;
     }
@@ -105,6 +91,22 @@ public class ComponentList implements Serializable {
 
     public void setCloned(Integer cloned) {
         this.cloned = cloned;
+    }
+
+    public BranchName getBranchId() {
+        return branchId;
+    }
+
+    public void setBranchId(BranchName branchId) {
+        this.branchId = branchId;
+    }
+
+    public BranchName getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(BranchName parentId) {
+        this.parentId = parentId;
     }
 
     @Override

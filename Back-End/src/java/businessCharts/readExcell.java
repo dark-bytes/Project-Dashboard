@@ -7,10 +7,14 @@ package businessCharts;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.util.Pair;
@@ -27,17 +31,17 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 
 public class readExcell {
-    XSSFRow row;
+//    XSSFRow row;
     XSSFWorkbook workbook;
     private FileInputStream fis; 
     private int totalrow;
     
     public void initExcel(String fileName) throws Exception{
-        fis = new FileInputStream(new File("C:\\Users\\ssingh2\\Documents\\NetBeansProjects\\project_manage_dashboard\\src\\java\\businessCharts\\" + fileName));
+        fis = new FileInputStream(new File("C:\\Users\\Public\\Documents\\Dashboard_External\\" + fileName));
         workbook = new XSSFWorkbook(fis);
     }
     
-    private static boolean isContain(Cell cell,String keyword){
+    private boolean isContain(Cell cell,String keyword) throws Exception{
         try{
             try{
                 if(cell.getStringCellValue().contains(keyword) || cell.getStringCellValue().startsWith(keyword) || cell.getStringCellValue().endsWith(keyword))
@@ -54,7 +58,85 @@ public class readExcell {
         return false;
     }
     
-    private static int getColNo(String colName,XSSFRow row){
+    //returns string array if you just pass array of keywords to be excuted it will return 
+    //string array as it is.
+    public TreeMap<Double,String> getcontentList(String colName,String colName2) throws Exception{
+        TreeMap< Double,String > treemap = new TreeMap< Double,String >();
+        initExcel("excel.xlsx");
+        XSSFSheet spreadsheet = workbook.getSheetAt(0);
+        Iterator<Row> rowIterator = spreadsheet.iterator();
+        XSSFRow row = (XSSFRow)rowIterator.next();
+        int setColno = getColNo(colName,row);
+        int setColno2 = getColNo(colName2,row);
+        while(rowIterator.hasNext()){
+            row = (XSSFRow) rowIterator.next();
+            Cell cell = row.getCell(setColno);
+            Cell cell2 = row.getCell(setColno2);
+            try{
+                treemap.put(cell.getNumericCellValue(), new SimpleDateFormat("yyyy-MM-dd").format(cell2.getDateCellValue()));
+            }
+            catch(Exception ex){
+                treemap.put(cell.getNumericCellValue(),"nodate");
+            }
+        }
+        return treemap;
+    }
+    
+    public String[] queryByRowKey(String[] keyStringArray,String colName,String resultColName) throws Exception{
+        String[] resultStringArray = new String[keyStringArray.length];
+        initExcel("excel.xlsx");
+        XSSFSheet spreadsheet = workbook.getSheetAt(0);
+        
+        Iterator<Row> rowIterator = spreadsheet.iterator();
+        XSSFRow row = (XSSFRow)rowIterator.next();
+        int getcellNo = getColNo(colName,row);
+        int getReturncellKey = getColNo(resultColName,row);
+        System.out.println("Inside queryByRowKey" + " CellNocolname" + getcellNo + "ReturnCellColName" + getReturncellKey);
+        
+        for(int i = 0;i < keyStringArray.length;i++){
+            System.out.println("resultstring array elements" + keyStringArray[i]);
+            rowIterator = spreadsheet.iterator();
+            row = (XSSFRow)rowIterator.next();
+            int flag = 0;
+            while(rowIterator.hasNext()){
+                row = (XSSFRow) rowIterator.next();
+                Cell cell = row.getCell(getcellNo);
+                Cell returnCell = row.getCell(getReturncellKey);
+           //    System.out.println("Date is " + returnCell.getDateCellValue());
+             //   try{
+                    if(cell.getNumericCellValue() == Double.parseDouble(keyStringArray[i])){
+                        flag = 1;
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    //    System.out.println("Date is " + sdf.format(returnCell.getDateCellValue()));
+                        try{
+                            if(returnCell.getDateCellValue() != null)
+                                resultStringArray[i] = sdf.format(returnCell.getDateCellValue());
+                        }
+                        catch(Exception ex){
+                            resultStringArray[i] = "No Deadline Available";
+                        }
+                    }
+              //  }
+               // catch(Exception ex){
+              //      continue;
+                //}
+            }
+            if(flag == 0){
+                resultStringArray[i] = "Bug Not Available/Resolved";
+                flag = 0;
+            }
+            else
+                flag = 0;
+        }
+        
+        return resultStringArray;
+    }
+        
+    
+    
+    //gives col no of the column name which is passed through it just give first row
+    //and the name of the column it will give you index of column to be done
+    private int getColNo(String colName,XSSFRow row){
         Iterator<Cell> topCell = row.cellIterator();
         int cellNo = 0;
         colName = colName.toLowerCase();
@@ -79,7 +161,7 @@ public class readExcell {
         int getcellNokey = getColNo("keywords", row);
         int countCells = 0;
         int notCloned = 0;
-        System.out.println("kee" + getcellNokey +  " "+ getcellNo);
+        System.out.println("CellNokey" + getcellNokey +  "getqurycell"+ getcellNo);
         while(rowIterator.hasNext()){
             totalrow++;
             row = (XSSFRow)rowIterator.next();
@@ -176,13 +258,13 @@ public class readExcell {
         return list;
     }
     
-    public static void main(String args[]){
-        Pair<Integer,Integer> cols;
-        try {
-            jsontreegenerator jsg = new jsontreegenerator();
-            jsg.treeGenerate();
-        } catch (Exception ex) {
-            Logger.getLogger(readExcell.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+//    public static void main(String args[]){
+//        Pair<Integer,Integer> cols;
+//        try {
+//            jsontreegenerator jsg = new jsontreegenerator();
+//            jsg.treeGenerate();
+//        } catch (Exception ex) {
+//            Logger.getLogger(readExcell.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
 }

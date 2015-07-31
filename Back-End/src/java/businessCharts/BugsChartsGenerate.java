@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package businessCharts;
-
 import businessCharts.entityClasses.Allopenbugs;
 import businessCharts.entityClasses.BranchParent;
 import com.google.gson.annotations.Expose;
@@ -24,15 +23,13 @@ import javax.persistence.Query;
  *
  * @author ssingh2
  */
-public class BugsChartsGenerate {
-    private EntityManagerFactory factory;
-    private String p_unit_name = "project_manage_dashboardPU";    
+public class BugsChartsGenerate extends AbstractBugList{ 
     @Expose
     List<Integer> open = new ArrayList<>();
     @Expose
     List<Integer> cloned = new ArrayList<>();
     @Expose 
-    List<Date> dates = new ArrayList<>();
+    List<String> dates = new ArrayList<>();
     @Expose
     List<String> names = new ArrayList<>();
     @Expose
@@ -55,42 +52,52 @@ public class BugsChartsGenerate {
     List<Integer> componentopenedBugs = new ArrayList<>();
     
     
-    void generateBarChart(int month,int name) {
-        factory = Persistence.createEntityManagerFactory(p_unit_name);
-        EntityManager em = factory.createEntityManager();
-        Query q = em.createQuery("SELECT a FROM Allopenbugs a WHERE a.allopenbugsPK.date between :date1 and :date2");        
-        Calendar myCal = Calendar.getInstance();
-        myCal.set(Calendar.MONTH, month);
-        myCal.set(Calendar.DAY_OF_MONTH, 1);
-        Date d = myCal.getTime();
-        System.out.println(d);
-        q.setParameter("date1", d);
-        myCal.set(Calendar.MONTH, month);
-        myCal.set(Calendar.DAY_OF_MONTH, 31);
-        d = myCal.getTime();
-        System.out.println(d);
-        q.setParameter("date2", d);
-        List<Allopenbugs> list = q.getResultList();
-        for(Allopenbugs l : list){
-            if(l.getAllopenbugsPK().getBranchId() == name){
-                open.add(l.getOpenCloned());
-                cloned.add(l.getOpenNotCloned());
-                dates.add(l.getAllopenbugsPK().getDate());
-            }
-        }
-        em.close();
-        factory.close();
-    }
-   
-    void generatePieChart(int name){
-        factory = Persistence.createEntityManagerFactory(p_unit_name);
+    void generateBarChart(int month,int _branchid) throws Exception{
+        initializeFactory();
         EntityManager em = factory.createEntityManager();
         Query q = em.createQuery("SELECT b from BranchParent b");
         List<BranchParent> brp = q.getResultList();
         List<Integer> list = new ArrayList<Integer>();
         Queue<Integer> queue = new LinkedList<>();
-        queue.add(name);
-        list.add(name);
+        queue.add(_branchid);
+        list.add(_branchid);
+        //queue to just know the list of dependency / branch dependency in db
+        while(!queue.isEmpty()){
+           int top = queue.element();
+            queue.remove();
+         //   System.out.println("top" + top);
+            for(BranchParent bp : brp){
+               // System.out.println(bp.getParentid().getId());
+                if(bp.getParentid().getId() == top && bp.getId() != top){
+                    System.out.println(bp.getParentid().getId());
+                    queue.add(bp.getId());
+                    list.add(bp.getId());
+                }
+            }
+        }
+        q = em.createQuery("SELECT a.allopenbugsPK.date,sum(a.openCloned),SUM(a.openNotCloned) FROM Allopenbugs a where a.branchName IN :id GROUP BY a.allopenbugsPK.date");
+        q.setParameter("id", list);
+        List<Object[]> list1 = q.getResultList();
+        
+        for(Object[] l : list1){
+                open.add(((Number)l[1]).intValue());
+                cloned.add(((Number) l[2]).intValue());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                dates.add(sdf.format((Date)l[0]));
+        }
+        em.close();
+        factory.close();
+    }
+   
+    void generatePieChart(int _branchid) throws Exception{
+        initializeFactory();
+        Query q = em.createQuery("SELECT b from BranchParent b");
+        List<BranchParent> brp = q.getResultList();
+        List<Integer> list = new ArrayList<Integer>();
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(_branchid);
+        list.add(_branchid);
+        //queue to just know the list of dependency / branch dependency in db
         while(!queue.isEmpty()){
            int top = queue.element();
             queue.remove();
@@ -133,5 +140,10 @@ public class BugsChartsGenerate {
             customerclonedBugs.add(((Number)result[1]).intValue());
             customeropenedBugs.add(((Number)result[2]).intValue());
         }
+    }
+
+    @Override
+    public void put() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

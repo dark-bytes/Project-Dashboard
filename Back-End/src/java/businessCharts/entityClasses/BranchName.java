@@ -57,8 +57,26 @@ public class BranchName implements Serializable {
     private BranchParent branchParent;
     @OneToMany(mappedBy = "parentid")
     private Collection<BranchParent> branchParentCollection;
+    @OneToMany(mappedBy = "branchId")
+    private Collection<CustomerList> customerListCollection;
+    @OneToMany(mappedBy = "parentId")
+    private Collection<CustomerList> customerListCollection1;
+    @OneToMany(mappedBy = "branchId")
+    private Collection<ComponentList> componentListCollection;
+    @OneToMany(mappedBy = "parentId")
+    private Collection<ComponentList> componentListCollection1;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "branchid")
+    private Collection<AssigneeData> assigneeDataCollection;
+    @OneToMany(mappedBy = "parentId")
+    private Collection<AssigneeData> assigneeDataCollection1;
+    @OneToMany(mappedBy = "branchId")
+    private Collection<FeatureBugTable> featureBugTableCollection;
+    @OneToMany(mappedBy = "parentId")
+    private Collection<FeatureBugTable> featureBugTableCollection1;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "branchName")
     private Collection<Allopenbugs> allopenbugsCollection;
+    @OneToMany(mappedBy = "parentId")
+    private Collection<Allopenbugs> allopenbugsCollection1;
 
     public BranchName() {
     }
@@ -115,12 +133,93 @@ public class BranchName implements Serializable {
     }
 
     @XmlTransient
+    public Collection<CustomerList> getCustomerListCollection() {
+        return customerListCollection;
+    }
+
+    public void setCustomerListCollection(Collection<CustomerList> customerListCollection) {
+        this.customerListCollection = customerListCollection;
+    }
+
+    @XmlTransient
+    public Collection<CustomerList> getCustomerListCollection1() {
+        return customerListCollection1;
+    }
+
+    public void setCustomerListCollection1(Collection<CustomerList> customerListCollection1) {
+        this.customerListCollection1 = customerListCollection1;
+    }
+
+    @XmlTransient
+    public Collection<ComponentList> getComponentListCollection() {
+        return componentListCollection;
+    }
+
+    public void setComponentListCollection(Collection<ComponentList> componentListCollection) {
+        this.componentListCollection = componentListCollection;
+    }
+
+    @XmlTransient
+    public Collection<ComponentList> getComponentListCollection1() {
+        return componentListCollection1;
+    }
+
+    public void setComponentListCollection1(Collection<ComponentList> componentListCollection1) {
+        this.componentListCollection1 = componentListCollection1;
+    }
+
+    @XmlTransient
+    public Collection<AssigneeData> getAssigneeDataCollection() {
+        return assigneeDataCollection;
+    }
+
+    public void setAssigneeDataCollection(Collection<AssigneeData> assigneeDataCollection) {
+        this.assigneeDataCollection = assigneeDataCollection;
+    }
+
+    @XmlTransient
+    public Collection<AssigneeData> getAssigneeDataCollection1() {
+        return assigneeDataCollection1;
+    }
+
+    public void setAssigneeDataCollection1(Collection<AssigneeData> assigneeDataCollection1) {
+        this.assigneeDataCollection1 = assigneeDataCollection1;
+    }
+
+    @XmlTransient
+    public Collection<FeatureBugTable> getFeatureBugTableCollection() {
+        return featureBugTableCollection;
+    }
+
+    public void setFeatureBugTableCollection(Collection<FeatureBugTable> featureBugTableCollection) {
+        this.featureBugTableCollection = featureBugTableCollection;
+    }
+
+    @XmlTransient
+    public Collection<FeatureBugTable> getFeatureBugTableCollection1() {
+        return featureBugTableCollection1;
+    }
+
+    public void setFeatureBugTableCollection1(Collection<FeatureBugTable> featureBugTableCollection1) {
+        this.featureBugTableCollection1 = featureBugTableCollection1;
+    }
+
+    @XmlTransient
     public Collection<Allopenbugs> getAllopenbugsCollection() {
         return allopenbugsCollection;
     }
 
     public void setAllopenbugsCollection(Collection<Allopenbugs> allopenbugsCollection) {
         this.allopenbugsCollection = allopenbugsCollection;
+    }
+
+    @XmlTransient
+    public Collection<Allopenbugs> getAllopenbugsCollection1() {
+        return allopenbugsCollection1;
+    }
+
+    public void setAllopenbugsCollection1(Collection<Allopenbugs> allopenbugsCollection1) {
+        this.allopenbugsCollection1 = allopenbugsCollection1;
     }
 
     @Override
